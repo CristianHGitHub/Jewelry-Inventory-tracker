@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Jewelry Item</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Sell Item</h1>
+            <p>Record the sale of your jewelry item</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">🏠 Back to Dashboard</a>
+        </div>
+
+        <div class="form-container">
+            <div class="summary-card" style="margin-bottom: 30px;">
+                <h3>📋 Item Details</h3>
+                <div style="text-align: left; font-size: 1.1em; margin-top: 15px;">
+                    <strong>Name:</strong> <%= item.name %><br>
+                    <strong>Type:</strong> <%= item.type %><br>
+                    <strong>Weight:</strong> <%= item.weight %>g<br>
+                    <strong>Purity:</strong> <%= item.purity %>%<br>
+                    <strong>Original Cost:</strong> $<%= item.cost.toFixed(2) %><br>
+                    <% if (item.description) { %>
+                    <strong>Description:</strong> <%= item.description %><br>
+                    <% } %>
+                </div>
+            </div>
+
+            <form action="/sell-item/<%= item.id %>" method="POST">
+                <div class="form-group">
+                    <label for="price">Sale Price ($) *</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" placeholder="0.00" required>
+                    <div id="profit-display" style="margin-top: 10px; font-weight: bold; font-size: 1.1em;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="buyer">Buyer Name (optional)</label>
+                    <input type="text" id="buyer" name="buyer" placeholder="Customer name or business">
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Sale Notes (optional)</label>
+                    <textarea id="notes" name="notes" placeholder="Any additional notes about the sale..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn primary">💰 Complete Sale</button>
+                    <a href="/" class="btn">❌ Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const costPrice = <%= item.cost %>;
+        
+        document.getElementById('price').addEventListener('input', function() {
+            const salePrice = parseFloat(this.value) || 0;
+            const profit = salePrice - costPrice;
+            const profitDisplay = document.getElementById('profit-display');
+            
+            if (salePrice > 0) {
+                const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
+                const profitText = profit >= 0 ? 'Profit' : 'Loss';
+                profitDisplay.innerHTML = `${profitText}: <span class="${profitClass}">$${Math.abs(profit).toFixed(2)}</span>`;
+            } else {
+                profitDisplay.innerHTML = '';
+            }
+        });
+        
+        // Confirm before selling
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const salePrice = parseFloat(document.getElementById('price').value) || 0;
+            const profit = salePrice - costPrice;
+            const profitText = profit >= 0 ? `profit of $${profit.toFixed(2)}` : `loss of $${Math.abs(profit).toFixed(2)}`;
+            
+            if (!confirm(`Are you sure you want to sell "<%= item.name %>" for $${salePrice.toFixed(2)}? This will result in a ${profitText}.`)) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Jewelry Inventory Tracker</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Settings</h1>
+            <p>Configure your jewelry inventory tracking</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/">🏠 Back to Dashboard</a>
+        </div>
+
+        <div class="form-container">
+            <form action="/settings" method="POST">
+                <div class="form-group">
+                    <label for="goldPrice">Current Gold Price (per gram) *</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.2em; font-weight: bold;">$</span>
+                        <input type="number" id="goldPrice" name="goldPrice" step="0.01" min="0.01" 
+                               value="<%= settings.goldPrice %>" required 
+                               style="flex: 1;">
+                    </div>
+                    <div style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;">
+                        💡 This is used to estimate the value of your inventory items
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="currency">Currency *</label>
+                    <select id="currency" name="currency" required>
+                        <option value="USD" <%= settings.currency === 'USD' ? 'selected' : '' %>>USD ($)</option>
+                        <option value="EUR" <%= settings.currency === 'EUR' ? 'selected' : '' %>>EUR (€)</option>
+                        <option value="GBP" <%= settings.currency === 'GBP' ? 'selected' : '' %>>GBP (£)</option>
+                        <option value="CAD" <%= settings.currency === 'CAD' ? 'selected' : '' %>>CAD ($)</option>
+                        <option value="AUD" <%= settings.currency === 'AUD' ? 'selected' : '' %>>AUD ($)</option>
+                    </select>
+                </div>
+
+                <div class="summary-card" style="margin: 30px 0; text-align: left;">
+                    <h3>💡 Tips for Using the System</h3>
+                    <div style="font-size: 1em; line-height: 1.8; margin-top: 15px;">
+                        <strong>Gold Price:</strong> Update this regularly to get accurate inventory valuations.<br>
+                        <strong>Adding Items:</strong> Always weigh your jewelry accurately for precise tracking.<br>
+                        <strong>Purity:</strong> Use a testing kit to determine actual gold purity.<br>
+                        <strong>Sales:</strong> Record all sales immediately to maintain accurate profit tracking.<br>
+                        <strong>Backup:</strong> Your data is stored locally in the 'data' folder - back it up regularly!
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn primary">💾 Save Settings</button>
+                    <a href="/" class="btn">❌ Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const goldPrice = parseFloat(document.getElementById('goldPrice').value);
+            if (goldPrice <= 0) {
+                alert('Please enter a valid gold price greater than 0.');
+                e.preventDefault();
+                return;
+            }
+            
+            if (confirm('Are you sure you want to update these settings? This will affect inventory valuations.')) {
+                return true;
+            } else {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

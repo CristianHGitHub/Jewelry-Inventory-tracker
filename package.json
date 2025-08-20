@@ -1,0 +1,19 @@
+{
+  "name": "inventory-jewelry-tracker",
+  "version": "1.0.0",
+  "description": "Simple jewelry inventory tracking system for gold jewelry business",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["jewelry", "inventory", "gold", "tracking", "business"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
+  }
+}

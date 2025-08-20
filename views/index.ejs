@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gold Jewelry Inventory Tracker</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>💎 Gold Jewelry Inventory</h1>
+        <p>Simple tracking for your jewelry business</p>
+      </div>
+
+      <div class="summary-cards">
+        <div class="summary-card">
+          <h3>📦 Inventory Value</h3>
+          <div class="amount">$<%= totalInventoryValue.toFixed(2) %></div>
+        </div>
+        <div class="summary-card sales">
+          <h3>💰 Total Sales</h3>
+          <div class="amount">$<%= totalSales.toFixed(2) %></div>
+        </div>
+        <div class="summary-card profit">
+          <h3>📈 Total Profit</h3>
+          <div class="amount">$<%= totalProfit.toFixed(2) %></div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <a href="/add-item" class="btn primary">➕ Add New Item</a>
+        <a href="/settings" class="btn secondary">⚙️ Settings</a>
+      </div>
+
+      <% if (inventory.length > 0) { %>
+      <div class="table-container">
+        <div class="table-header">
+          <h2>📋 Current Inventory</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Weight (g)</th>
+              <th>Purity</th>
+              <th>Cost</th>
+              <th>Est. Value</th>
+              <th>Date Added</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% inventory.forEach(item => { %>
+            <tr>
+              <td><strong><%= item.name %></strong></td>
+              <td><%= item.type %></td>
+              <td><%= item.weight %>g</td>
+              <td><%= item.purity %>%</td>
+              <td>$<%= item.cost.toFixed(2) %></td>
+              <td>$<%= (item.weight * settings.goldPrice).toFixed(2) %></td>
+              <td><%= new Date(item.dateAdded).toLocaleDateString() %></td>
+              <td class="table-actions">
+                <a href="/sell-item/<%= item.id %>" class="btn primary small"
+                  >💰 Sell</a
+                >
+                <button
+                  onclick="deleteItem('<%= item.id %>')"
+                  class="btn danger small"
+                >
+                  🗑️ Delete
+                </button>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% } else { %>
+      <div class="empty-state">
+        <h3>📦 No Items in Inventory</h3>
+        <p>Start by adding your first jewelry item to track your inventory!</p>
+        <a href="/add-item" class="btn primary">➕ Add Your First Item</a>
+      </div>
+      <% } %> <% if (sales.length > 0) { %>
+      <div class="table-container">
+        <div class="table-header">
+          <h2>💵 Recent Sales</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Item Name</th>
+              <th>Type</th>
+              <th>Weight (g)</th>
+              <th>Cost</th>
+              <th>Sale Price</th>
+              <th>Profit</th>
+              <th>Buyer</th>
+              <th>Date Sold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% sales.slice(-10).reverse().forEach(sale => { %>
+            <tr>
+              <td><strong><%= sale.itemName %></strong></td>
+              <td><%= sale.itemType %></td>
+              <td><%= sale.weight %>g</td>
+              <td>$<%= sale.cost.toFixed(2) %></td>
+              <td>$<%= sale.price.toFixed(2) %></td>
+              <td
+                class="<%= sale.profit >= 0 ? 'profit-positive' : 'profit-negative' %>"
+              >
+                $<%= sale.profit.toFixed(2) %>
+              </td>
+              <td><%= sale.buyer || 'N/A' %></td>
+              <td><%= new Date(sale.dateSold).toLocaleDateString() %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+
+    <script>
+      function deleteItem(itemId) {
+        if (
+          confirm(
+            "Are you sure you want to delete this item? This action cannot be undone."
+          )
+        ) {
+          fetch(`/item/${itemId}`, {
+            method: "DELETE",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                location.reload();
+              } else {
+                alert("Error deleting item. Please try again.");
+              }
+            })
+            .catch((error) => {
+              alert("Error deleting item. Please try again.");
+            });
+        }
+      }
+    </script>
+  </body>
+</html>
