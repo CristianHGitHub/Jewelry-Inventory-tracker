@@ -1,13 +1,7 @@
 {
-  "goldPrice": 50.0,
-  "currency": "USD",
-  "businessName": "Sample Jewelry Business",
-  "businessAddress": "123 Example Street, Sample City, SC 12345",
-  "businessPhone": "(555) 123-4567",
-  "businessEmail": "info@samplejewelry.com",
-  "taxRate": 8.5,
-  "defaultPurity": 58.3,
-  "backupFrequency": "daily",
-  "privacyLevel": "encrypted",
-  "lastUpdated": "2024-01-15T10:00:00.000Z"
+  "goldPricePerOunce": 3355.3,
+  "lastUpdated": "2024-01-15T10:00:00.000Z",
+  "autoUpdate": true,
+  "dealerMarkup": 0.75,
+  "currency": "USD"
 }

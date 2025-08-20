@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add New Jewelry Item</title>
+    <title>Add Item - Jewelry Inventory Tracker</title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1 data-translate="add-new-jewelry">➕ Add New Jewelry Item</h1>
+        <h1 data-translate="add-item-title">➕ Add New Item</h1>
         <p data-translate="add-item-subtitle">
-          Add a new item to your inventory
+          Add a new jewelry item to your inventory
         </p>
       </div>
 
@@ -20,46 +20,34 @@
       </div>
 
       <div class="form-container">
-        <form action="/add-item" method="POST">
+        <form action="/add-item" method="POST" id="addItemForm">
           <div class="form-group">
             <label for="name" data-translate="item-name">Item Name *</label>
             <input
               type="text"
               id="name"
               name="name"
-              data-translate-placeholder="item-name-placeholder"
-              placeholder="e.g., Gold Ring, Necklace, Bracelet"
               required
+              placeholder="e.g., Gold Ring, Necklace, Bracelet"
             />
           </div>
 
           <div class="form-group">
-            <label for="type" data-translate="jewelry-type"
-              >Jewelry Type *</label
-            >
+            <label for="type" data-translate="item-type">Item Type *</label>
             <select id="type" name="type" required>
-              <option value="" data-translate="select-jewelry-type">
-                Select jewelry type...
-              </option>
-              <option value="Ring" data-translate="ring">Ring</option>
-              <option value="Necklace" data-translate="necklace">
-                Necklace
-              </option>
-              <option value="Bracelet" data-translate="bracelet">
-                Bracelet
-              </option>
-              <option value="Earrings" data-translate="earrings">
-                Earrings
-              </option>
-              <option value="Pendant" data-translate="pendant">Pendant</option>
-              <option value="Chain" data-translate="chain">Chain</option>
-              <option value="Watch" data-translate="watch">Watch</option>
-              <option value="Other" data-translate="other">Other</option>
+              <option value="">Select item type</option>
+              <option value="Ring">Ring</option>
+              <option value="Necklace">Necklace</option>
+              <option value="Bracelet">Bracelet</option>
+              <option value="Earrings">Earrings</option>
+              <option value="Chain">Chain</option>
+              <option value="Pendant">Pendant</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="weight" data-translate="weight-grams"
+            <label for="weight" data-translate="item-weight"
               >Weight (grams) *</label
             >
             <input
@@ -68,64 +56,89 @@
               name="weight"
               step="0.01"
               min="0.01"
-              data-translate-placeholder="weight-placeholder"
-              placeholder="0.00"
               required
+              placeholder="e.g., 5.2"
             />
           </div>
 
           <div class="form-group">
-            <label for="purity" data-translate="gold-purity"
+            <label for="purity" data-translate="item-purity"
               >Gold Purity (%) *</label
             >
-            <select id="purity" name="purity" required>
-              <option value="" data-translate="select-purity">
-                Select purity...
-              </option>
+            <select
+              id="purity"
+              name="purity"
+              required
+              onchange="calculateGoldValue()"
+            >
+              <option value="">Select purity</option>
               <option value="37.5">9K (37.5%)</option>
               <option value="41.7">10K (41.7%)</option>
               <option value="58.3">14K (58.3%)</option>
-              <option value="75">18K (75%)</option>
+              <option value="75.0">18K (75.0%)</option>
               <option value="91.7">22K (91.7%)</option>
               <option value="99.9">24K (99.9%)</option>
+              <option value="custom">Custom Purity</option>
             </select>
+            <input
+              type="number"
+              id="customPurity"
+              name="customPurity"
+              step="0.1"
+              min="0.1"
+              max="100"
+              style="display: none; margin-top: 10px"
+              placeholder="Enter custom purity %"
+              onchange="calculateGoldValue()"
+            />
           </div>
 
           <div class="form-group">
-            <label for="cost" data-translate="purchase-cost"
-              >Purchase/Cost Price ($) *</label
+            <label for="cost" data-translate="item-cost"
+              >Purchase Cost ($) *</label
             >
             <input
               type="number"
               id="cost"
               name="cost"
               step="0.01"
-              min="0"
-              data-translate-placeholder="cost-placeholder"
-              placeholder="0.00"
+              min="0.01"
               required
+              placeholder="e.g., 150.00"
             />
           </div>
 
           <div class="form-group">
-            <label for="description" data-translate="description"
-              >Description (optional)</label
+            <label for="description" data-translate="item-description"
+              >Description</label
             >
             <textarea
               id="description"
               name="description"
-              data-translate-placeholder="description-placeholder"
+              rows="3"
               placeholder="Additional details about the item..."
             ></textarea>
           </div>
 
-          <div class="action-buttons">
-            <button
-              type="submit"
-              class="btn primary"
-              data-translate="save-item"
+          <!-- Real-time Gold Value Calculation -->
+          <div
+            class="summary-card"
+            style="margin: 30px 0; text-align: left; display: none"
+            id="goldValueCard"
+            data-gold-price="<%= (settings && settings.goldPricePerOunce) || 3355.3 %>"
+          >
+            <h3>💰 Real-Time Gold Value Calculation</h3>
+            <div
+              id="goldValueDetails"
+              style="font-size: 1em; line-height: 1.8; margin-top: 15px"
             >
-              💾 Save Item
+              <!-- Gold value details will be populated here -->
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button type="submit" class="btn primary" data-translate="add-item">
+              ➕ Add Item
             </button>
             <a href="/" class="btn" data-translate="cancel">❌ Cancel</a>
           </div>
@@ -135,21 +148,186 @@
 
     <script src="/js/language.js"></script>
     <script>
-      // Auto-calculate estimated value based on weight and current gold price
+      // Show/hide custom purity input
+      document.getElementById("purity").addEventListener("change", function () {
+        const customPurity = document.getElementById("customPurity");
+        if (this.value === "custom") {
+          customPurity.style.display = "block";
+          customPurity.required = true;
+        } else {
+          customPurity.style.display = "none";
+          customPurity.required = false;
+          calculateGoldValue();
+        }
+      });
+
+      // Calculate gold value when weight or purity changes
       document
         .getElementById("weight")
-        .addEventListener("input", updateEstimate);
+        .addEventListener("input", calculateGoldValue);
       document
-        .getElementById("purity")
-        .addEventListener("change", updateEstimate);
+        .getElementById("customPurity")
+        .addEventListener("input", calculateGoldValue);
 
-      function updateEstimate() {
-        const weight = parseFloat(document.getElementById("weight").value) || 0;
-        const purity = parseFloat(document.getElementById("purity").value) || 0;
+      function calculateGoldValue() {
+        const weight = parseFloat(document.getElementById("weight").value);
+        const puritySelect = document.getElementById("purity");
+        const customPurity = parseFloat(
+          document.getElementById("customPurity").value
+        );
 
-        // This would require getting the current gold price from settings
-        // For now, we'll show this calculation after the item is added
+        if (!weight || weight <= 0) {
+          hideGoldValueCard();
+          return;
+        }
+
+        let purity;
+        if (puritySelect.value === "custom") {
+          if (!customPurity || customPurity <= 0 || customPurity > 100) {
+            hideGoldValueCard();
+            return;
+          }
+          purity = customPurity;
+        } else if (puritySelect.value) {
+          purity = parseFloat(puritySelect.value);
+        } else {
+          hideGoldValueCard();
+          return;
+        }
+
+        // Get current gold price from settings
+        const currentGoldPrice =
+          parseFloat(
+            document
+              .getElementById("goldValueCard")
+              .getAttribute("data-gold-price")
+          ) || 3355.3;
+
+        // Calculate values
+        const goldPricePerGram = currentGoldPrice / 31.1035; // Convert from troy ounce to gram
+        const pureGoldGrams = weight * (purity / 100);
+        const marketValue = pureGoldGrams * goldPricePerGram;
+
+        // Determine dealer markup based on purity
+        const dealerMarkup = getDealerMarkup(purity);
+        const dealerValue = marketValue * dealerMarkup;
+        const markupPercentage = (1 - dealerMarkup) * 100;
+
+        // Determine karat
+        const karat = getKaratFromPurity(purity);
+
+        // Display results
+        const goldValueCard = document.getElementById("goldValueCard");
+        const goldValueDetails = document.getElementById("goldValueDetails");
+
+        goldValueDetails.innerHTML = `
+              <strong>Item Details:</strong><br>
+              • Weight: ${weight.toFixed(2)} grams<br>
+              • Purity: ${purity.toFixed(1)}% (${karat})<br>
+              • Pure Gold Content: ${pureGoldGrams.toFixed(2)} grams<br><br>
+
+              <strong>Current Market Values:</strong><br>
+              • Gold Price: $${currentGoldPrice.toFixed(2)} per troy ounce<br>
+              • Gold Price: $${goldPricePerGram.toFixed(2)} per gram<br>
+              • Market Value: $${marketValue.toFixed(2)}<br><br>
+
+              <strong>Dealer Pricing (What dealers actually pay):</strong><br>
+              • Dealer Pays: ${(dealerMarkup * 100).toFixed(
+                0
+              )}% of market value<br>
+              • Dealer Markup: ${markupPercentage.toFixed(0)}%<br>
+              • <strong>Dealer Value: $${dealerValue.toFixed(
+                2
+              )}</strong><br><br>
+
+              <strong>💡 Business Insight:</strong><br>
+              This item contains ${pureGoldGrams.toFixed(2)} grams of pure gold.
+              Dealers typically pay ${(dealerMarkup * 100).toFixed(
+                0
+              )}% of the market value
+              for ${karat} gold, which includes their processing costs and profit margin.
+          `;
+
+        goldValueCard.style.display = "block";
       }
+
+      function hideGoldValueCard() {
+        document.getElementById("goldValueCard").style.display = "none";
+      }
+
+      // Dealer markup lookup based on purity
+      function getDealerMarkup(purity) {
+        const purityRanges = [
+          { min: 0, max: 40, markup: 0.65 }, // 9K-10K range
+          { min: 40, max: 60, markup: 0.75 }, // 14K range
+          { min: 60, max: 80, markup: 0.8 }, // 18K range
+          { min: 80, max: 95, markup: 0.85 }, // 22K range
+          { min: 95, max: 100, markup: 0.9 }, // 24K range
+        ];
+
+        for (const range of purityRanges) {
+          if (purity >= range.min && purity <= range.max) {
+            return range.markup;
+          }
+        }
+        return 0.75; // Default to 14K markup
+      }
+
+      // Karat determination based on purity
+      function getKaratFromPurity(purity) {
+        if (purity >= 99.0) return "24K";
+        if (purity >= 90.0) return "22K";
+        if (purity >= 70.0) return "18K";
+        if (purity >= 55.0) return "14K";
+        if (purity >= 40.0) return "10K";
+        if (purity >= 35.0) return "9K";
+        return "Custom";
+      }
+
+      // Form validation
+      document
+        .getElementById("addItemForm")
+        .addEventListener("submit", function (e) {
+          const weight = parseFloat(document.getElementById("weight").value);
+          const purity = document.getElementById("purity").value;
+          const customPurity = parseFloat(
+            document.getElementById("customPurity").value
+          );
+          const cost = parseFloat(document.getElementById("cost").value);
+
+          if (weight <= 0) {
+            alert("Weight must be greater than 0");
+            e.preventDefault();
+            return;
+          }
+
+          if (
+            purity === "custom" &&
+            (customPurity <= 0 || customPurity > 100)
+          ) {
+            alert("Custom purity must be between 0.1% and 100%");
+            e.preventDefault();
+            return;
+          }
+
+          if (cost <= 0) {
+            alert("Cost must be greater than 0");
+            e.preventDefault();
+            return;
+          }
+
+          // Show confirmation with calculated values
+          const confirmMessage =
+            LanguageManager.currentLanguage === "es"
+              ? LanguageManager.translations.es["add-item-confirm"]
+              : LanguageManager.translations.en["add-item-confirm"];
+
+          if (confirm(confirmMessage)) {
+            return true;
+          } else {
+            e.preventDefault();
+          }
+        });
     </script>
   </body>
 </html>

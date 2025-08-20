@@ -9,27 +9,48 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1 data-translate="header-title">💎 Gold Jewelry Inventory</h1>
+        <h1 data-translate="header-title">💎 Gold Jewelry Inventory Tracker</h1>
         <p data-translate="header-subtitle">
           Simple tracking for your jewelry business
         </p>
+        <div id="language-toggle"></div>
       </div>
 
+      <!-- Summary Cards -->
       <div class="summary-cards">
         <div class="summary-card">
-          <h3 data-translate="inventory-value">📦 Inventory Value</h3>
-          <div class="amount">$<%= totalInventoryValue.toFixed(2) %></div>
+          <h3>📦 Total Inventory</h3>
+          <div class="summary-value"><%= inventory.length %></div>
+          <div class="summary-label">items</div>
         </div>
-        <div class="summary-card sales">
-          <h3 data-translate="total-sales">💰 Total Sales</h3>
-          <div class="amount">$<%= totalSales.toFixed(2) %></div>
+        <div class="summary-card">
+          <h3>💰 Inventory Value</h3>
+          <div class="summary-value">
+            $<%= (totalInventoryValue || 0).toFixed(2) %>
+          </div>
+          <div class="summary-label">current market value</div>
+          <div
+            class="summary-note"
+            style="font-size: 0.8em; color: #7f8c8d; margin-top: 5px"
+          >
+            Based on current gold price: $<%= ((settings &&
+            settings.goldPricePerOunce ? settings.goldPricePerOunce : 3355.3) /
+            31.1035).toFixed(2) %>/gram
+          </div>
         </div>
-        <div class="summary-card profit">
-          <h3 data-translate="total-profit">📈 Total Profit</h3>
-          <div class="amount">$<%= totalProfit.toFixed(2) %></div>
+        <div class="summary-card">
+          <h3>💸 Total Sales</h3>
+          <div class="summary-value">$<%= totalSales.toFixed(2) %></div>
+          <div class="summary-label">revenue</div>
+        </div>
+        <div class="summary-card">
+          <h3>📈 Total Profit</h3>
+          <div class="summary-value">$<%= totalProfit.toFixed(2) %></div>
+          <div class="summary-label">earned</div>
         </div>
       </div>
 
+      <!-- Action Buttons -->
       <div class="action-buttons">
         <a href="/add-item" class="btn primary" data-translate="add-new-item"
           >➕ Add New Item</a
@@ -39,103 +60,207 @@
         >
       </div>
 
-      <% if (inventory.length > 0) { %>
-      <div class="table-container">
-        <div class="table-header">
-          <h2 data-translate="current-inventory">📋 Current Inventory</h2>
+      <!-- Inventory Section -->
+      <div class="section">
+        <h2 data-translate="inventory-title">📦 Current Inventory</h2>
+        <% if (inventory.length === 0) { %>
+        <div class="empty-state">
+          <p data-translate="no-inventory">No items in inventory yet.</p>
+          <a
+            href="/add-item"
+            class="btn primary"
+            data-translate="add-first-item"
+            >➕ Add Your First Item</a
+          >
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th data-translate="name">Name</th>
-              <th data-translate="type">Type</th>
-              <th data-translate="weight">Weight (g)</th>
-              <th data-translate="purity">Purity</th>
-              <th data-translate="cost">Cost</th>
-              <th data-translate="est-value">Est. Value</th>
-              <th data-translate="date-added">Date Added</th>
-              <th data-translate="actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% inventory.forEach(item => { %>
-            <tr>
-              <td><strong><%= item.name %></strong></td>
-              <td><%= item.type %></td>
-              <td><%= item.weight %>g</td>
-              <td><%= item.purity %>%</td>
-              <td>$<%= item.cost.toFixed(2) %></td>
-              <td>$<%= (item.weight * settings.goldPrice).toFixed(2) %></td>
-              <td><%= new Date(item.dateAdded).toLocaleDateString() %></td>
-              <td class="table-actions">
-                <a
-                  href="/sell-item/<%= item.id %>"
-                  class="btn primary small"
-                  data-translate="sell"
-                  >💰 Sell</a
-                >
-                <button
-                  onclick="deleteItem('<%= item.id %>')"
-                  class="btn danger small"
-                  data-translate="delete"
-                >
-                  🗑️ Delete
-                </button>
-              </td>
-            </tr>
-            <% }); %>
-          </tbody>
-        </table>
+        <% } else { %>
+        <div class="table-container">
+          <table class="inventory-table">
+            <thead>
+              <tr>
+                <th data-translate="item-name">Item Name</th>
+                <th data-translate="item-type">Type</th>
+                <th data-translate="item-weight">Weight (g)</th>
+                <th data-translate="item-purity">Purity</th>
+                <th data-translate="item-karat">Karat</th>
+                <th data-translate="item-cost">Cost</th>
+                <th data-translate="item-market-value">Market Value</th>
+                <th data-translate="item-dealer-value">Dealer Value</th>
+                <th data-translate="item-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% inventory.forEach(function(item) { %>
+              <tr>
+                <td><%= item.name %></td>
+                <td><%= item.type %></td>
+                <td><%= item.weight.toFixed(2) %></td>
+                <td><%= item.purity.toFixed(1) %>%</td>
+                <td>
+                  <strong
+                    ><%= item.karat || getKaratFromPurity(item.purity)
+                    %></strong
+                  >
+                </td>
+                <td>$<%= item.cost.toFixed(2) %></td>
+                <td>
+                  $<%= item.marketValue ? item.marketValue.toFixed(2) : 'N/A' %>
+                </td>
+                <td>
+                  $<%= item.dealerValue ? item.dealerValue.toFixed(2) : 'N/A' %>
+                </td>
+                <td>
+                  <a
+                    href="/sell-item/<%= item.id %>"
+                    class="btn small primary"
+                    data-translate="sell"
+                    >💰 Sell</a
+                  >
+                  <button
+                    onclick="deleteItem('<%= item.id %>')"
+                    class="btn small danger"
+                    data-translate="delete"
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
       </div>
-      <% } else { %>
-      <div class="empty-state">
-        <h3 data-translate="no-items">📦 No Items in Inventory</h3>
-        <p data-translate="start-adding">
-          Start by adding your first jewelry item to track your inventory!
-        </p>
-        <a href="/add-item" class="btn primary" data-translate="add-first-item"
-          >➕ Add Your First Item</a
+
+      <!-- Sales Section -->
+      <div class="section">
+        <h2 data-translate="sales-title">💰 Recent Sales</h2>
+        <% if (sales.length === 0) { %>
+        <div class="empty-state">
+          <p data-translate="no-sales">No sales recorded yet.</p>
+        </div>
+        <% } else { %>
+        <div class="table-container">
+          <table class="sales-table">
+            <thead>
+              <tr>
+                <th data-translate="sale-item">Item</th>
+                <th data-translate="sale-weight">Weight (g)</th>
+                <th data-translate="sale-purity">Purity</th>
+                <th data-translate="sale-karat">Karat</th>
+                <th data-translate="sale-cost">Cost</th>
+                <th data-translate="sale-price">Sale Price</th>
+                <th data-translate="sale-profit">Profit</th>
+                <th data-translate="sale-buyer">Buyer</th>
+                <th data-translate="sale-date">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% sales.slice(-10).reverse().forEach(function(sale) { %>
+              <tr>
+                <td><%= sale.itemName %></td>
+                <td><%= sale.weight.toFixed(2) %></td>
+                <td><%= sale.purity.toFixed(1) %>%</td>
+                <td>
+                  <strong
+                    ><%= sale.karat || getKaratFromPurity(sale.purity)
+                    %></strong
+                  >
+                </td>
+                <td>$<%= sale.cost.toFixed(2) %></td>
+                <td>$<%= sale.price.toFixed(2) %></td>
+                <td class="<%= sale.profit >= 0 ? 'positive' : 'negative' %>">
+                  $<%= sale.profit.toFixed(2) %>
+                </td>
+                <td><%= sale.buyer %></td>
+                <td><%= new Date(sale.dateSold).toLocaleDateString() %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Gold Price Information -->
+      <div class="section">
+        <h2>🏆 Current Gold Market Information</h2>
+        <div
+          class="summary-cards"
+          style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"
         >
-      </div>
-      <% } %> <% if (sales.length > 0) { %>
-      <div class="table-container">
-        <div class="table-header">
-          <h2 data-translate="recent-sales">💵 Recent Sales</h2>
+          <div class="summary-card">
+            <h3>Current Gold Price</h3>
+            <div class="summary-value">
+              $<%= (settings && settings.goldPricePerOunce ?
+              settings.goldPricePerOunce : 3355.3).toFixed(2) %>
+            </div>
+            <div class="summary-label">per troy ounce</div>
+          </div>
+          <div class="summary-card">
+            <h3>Price per Gram</h3>
+            <div class="summary-value">
+              $<%= ((settings && settings.goldPricePerOunce ?
+              settings.goldPricePerOunce : 3355.3) / 31.1035).toFixed(2) %>
+            </div>
+            <div class="summary-label">pure 24K gold</div>
+          </div>
+          <div class="summary-card">
+            <h3>Last Updated</h3>
+            <div class="summary-value">
+              <%= settings && settings.lastUpdated ? new
+              Date(settings.lastUpdated).toLocaleDateString() : new
+              Date().toLocaleDateString() %>
+            </div>
+            <div class="summary-label">
+              <%= settings && settings.lastUpdated ? new
+              Date(settings.lastUpdated).toLocaleTimeString() : new
+              Date().toLocaleTimeString() %>
+            </div>
+          </div>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th data-translate="name">Item Name</th>
-              <th data-translate="type">Type</th>
-              <th data-translate="weight">Weight (g)</th>
-              <th data-translate="cost">Cost</th>
-              <th data-translate="sale-price">Sale Price</th>
-              <th data-translate="profit">Profit</th>
-              <th data-translate="buyer">Buyer</th>
-              <th data-translate="date-sold">Date Sold</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% sales.slice(-10).reverse().forEach(sale => { %>
-            <tr>
-              <td><strong><%= sale.itemName %></strong></td>
-              <td><%= sale.itemType %></td>
-              <td><%= sale.weight %>g</td>
-              <td>$<%= sale.cost.toFixed(2) %></td>
-              <td>$<%= sale.price.toFixed(2) %></td>
-              <td
-                class="<%= sale.profit >= 0 ? 'profit-positive' : 'profit-negative' %>"
-              >
-                $<%= sale.profit.toFixed(2) %>
-              </td>
-              <td><%= sale.buyer || 'N/A' %></td>
-              <td><%= new Date(sale.dateSold).toLocaleDateString() %></td>
-            </tr>
+
+        <!-- Karat Value Reference -->
+        <div class="summary-card" style="margin-top: 20px; text-align: left">
+          <h3>💡 Karat Value Reference (per gram)</h3>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+              gap: 15px;
+              margin-top: 15px;
+            "
+          >
+            <% Object.keys(goldPurity).forEach(function(karat) { %>
+            <div
+              style="
+                text-align: center;
+                padding: 10px;
+                background: #f8f9fa;
+                border-radius: 8px;
+              "
+            >
+              <div style="font-weight: bold; color: #2c3e50"><%= karat %></div>
+              <div style="font-size: 0.9em; color: #7f8c8d">
+                <%= goldPurity[karat] %>% pure
+              </div>
+              <div style="font-size: 1.1em; color: #27ae60; font-weight: bold">
+                $<%= (((settings && settings.goldPricePerOunce ?
+                settings.goldPricePerOunce : 3355.3) / 31.1035) *
+                (goldPurity[karat] / 100) * dealerMarkup[karat]).toFixed(2) %>
+              </div>
+              <div style="font-size: 0.8em; color: #e74c3c">
+                Dealer pays <%= (dealerMarkup[karat] * 100).toFixed(0) %>%
+              </div>
+            </div>
             <% }); %>
-          </tbody>
-        </table>
+          </div>
+          <div style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em">
+            <strong>Note:</strong> These are dealer buyback prices. Retail
+            prices are typically 20-40% higher.
+          </div>
+        </div>
       </div>
-      <% } %>
     </div>
 
     <script src="/js/language.js"></script>
@@ -155,21 +280,25 @@
               if (data.success) {
                 location.reload();
               } else {
-                const errorMessage =
-                  LanguageManager.currentLanguage === "es"
-                    ? LanguageManager.translations.es["error-deleting"]
-                    : LanguageManager.translations.en["error-deleting"];
-                alert(errorMessage);
+                alert("Error deleting item");
               }
             })
             .catch((error) => {
-              const errorMessage =
-                LanguageManager.currentLanguage === "es"
-                  ? LanguageManager.translations.es["error-deleting"]
-                  : LanguageManager.translations.en["error-deleting"];
-              alert(errorMessage);
+              console.error("Error:", error);
+              alert("Error deleting item");
             });
         }
+      }
+
+      // Helper function to get karat from purity (fallback for items without karat)
+      function getKaratFromPurity(purity) {
+        if (purity >= 99.0) return "24K";
+        if (purity >= 90.0) return "22K";
+        if (purity >= 70.0) return "18K";
+        if (purity >= 55.0) return "14K";
+        if (purity >= 40.0) return "10K";
+        if (purity >= 35.0) return "9K";
+        return "Custom";
       }
     </script>
   </body>
