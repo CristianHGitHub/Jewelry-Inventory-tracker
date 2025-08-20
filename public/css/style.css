@@ -27,6 +27,7 @@ body {
   padding: 30px 20px;
   margin-bottom: 30px;
   border-radius: 10px;
+  position: relative;
 }
 
 .header h1 {
@@ -37,6 +38,36 @@ body {
 .header p {
   font-size: 1.2em;
   opacity: 0.9;
+  margin-bottom: 20px;
+}
+
+/* Language Toggle Button */
+.language-toggle {
+  background-color: #e74c3c !important;
+  color: white !important;
+  border: 2px solid white !important;
+  padding: 12px 24px !important;
+  font-size: 1em !important;
+  font-weight: bold !important;
+  border-radius: 25px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  min-width: auto !important;
+  display: inline-block !important;
+  margin: 0 auto !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.language-toggle:hover {
+  background-color: #c0392b !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  border-color: #ecf0f1 !important;
+}
+
+.language-toggle:active {
+  transform: translateY(0) !important;
 }
 
 /* Summary Cards */

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "sale-example-001",
+    "itemId": "example-001",
+    "itemName": "Sample Gold Ring",
+    "itemType": "Ring",
+    "weight": 5.2,
+    "cost": 150.0,
+    "price": 220.0,
+    "profit": 70.0,
+    "buyer": "Sample Customer",
+    "notes": "Example sale for demonstration purposes",
+    "dateSold": "2024-01-20T16:45:00.000Z"
+  },
+  {
+    "id": "sale-example-002",
+    "itemId": "example-002",
+    "itemName": "Sample Gold Necklace",
+    "itemType": "Necklace",
+    "weight": 12.8,
+    "cost": 450.0,
+    "price": 680.0,
+    "profit": 230.0,
+    "buyer": "Sample Business",
+    "notes": "Example business sale for demonstration purposes",
+    "dateSold": "2024-01-22T11:30:00.000Z"
+  }
+]

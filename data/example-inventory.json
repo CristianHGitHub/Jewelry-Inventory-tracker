@@ -1,0 +1,32 @@
+[
+  {
+    "id": "example-001",
+    "name": "Sample Gold Ring",
+    "type": "Ring",
+    "weight": 5.2,
+    "purity": 58.3,
+    "cost": 150.0,
+    "description": "Example 14K gold ring for demonstration purposes",
+    "dateAdded": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "id": "example-002",
+    "name": "Sample Gold Necklace",
+    "type": "Necklace",
+    "weight": 12.8,
+    "purity": 75.0,
+    "cost": 450.0,
+    "description": "Example 18K gold necklace for demonstration purposes",
+    "dateAdded": "2024-01-16T14:20:00.000Z"
+  },
+  {
+    "id": "example-003",
+    "name": "Sample Gold Bracelet",
+    "type": "Bracelet",
+    "weight": 8.5,
+    "purity": 91.7,
+    "cost": 320.0,
+    "description": "Example 22K gold bracelet for demonstration purposes",
+    "dateAdded": "2024-01-17T09:15:00.000Z"
+  }
+]

@@ -1,92 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Add New Jewelry Item</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>➕ Add New Jewelry Item</h1>
-            <p>Add a new item to your inventory</p>
-        </div>
+      <div class="header">
+        <h1 data-translate="add-new-jewelry">➕ Add New Jewelry Item</h1>
+        <p data-translate="add-item-subtitle">
+          Add a new item to your inventory
+        </p>
+      </div>
 
-        <div class="nav-links">
-            <a href="/">🏠 Back to Dashboard</a>
-        </div>
+      <div class="nav-links">
+        <a href="/" data-translate="back-dashboard">🏠 Back to Dashboard</a>
+      </div>
 
-        <div class="form-container">
-            <form action="/add-item" method="POST">
-                <div class="form-group">
-                    <label for="name">Item Name *</label>
-                    <input type="text" id="name" name="name" placeholder="e.g., Gold Ring, Necklace, Bracelet" required>
-                </div>
+      <div class="form-container">
+        <form action="/add-item" method="POST">
+          <div class="form-group">
+            <label for="name" data-translate="item-name">Item Name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              data-translate-placeholder="item-name-placeholder"
+              placeholder="e.g., Gold Ring, Necklace, Bracelet"
+              required
+            />
+          </div>
 
-                <div class="form-group">
-                    <label for="type">Jewelry Type *</label>
-                    <select id="type" name="type" required>
-                        <option value="">Select jewelry type...</option>
-                        <option value="Ring">Ring</option>
-                        <option value="Necklace">Necklace</option>
-                        <option value="Bracelet">Bracelet</option>
-                        <option value="Earrings">Earrings</option>
-                        <option value="Pendant">Pendant</option>
-                        <option value="Chain">Chain</option>
-                        <option value="Watch">Watch</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
+          <div class="form-group">
+            <label for="type" data-translate="jewelry-type"
+              >Jewelry Type *</label
+            >
+            <select id="type" name="type" required>
+              <option value="" data-translate="select-jewelry-type">
+                Select jewelry type...
+              </option>
+              <option value="Ring" data-translate="ring">Ring</option>
+              <option value="Necklace" data-translate="necklace">
+                Necklace
+              </option>
+              <option value="Bracelet" data-translate="bracelet">
+                Bracelet
+              </option>
+              <option value="Earrings" data-translate="earrings">
+                Earrings
+              </option>
+              <option value="Pendant" data-translate="pendant">Pendant</option>
+              <option value="Chain" data-translate="chain">Chain</option>
+              <option value="Watch" data-translate="watch">Watch</option>
+              <option value="Other" data-translate="other">Other</option>
+            </select>
+          </div>
 
-                <div class="form-group">
-                    <label for="weight">Weight (grams) *</label>
-                    <input type="number" id="weight" name="weight" step="0.01" min="0.01" placeholder="0.00" required>
-                </div>
+          <div class="form-group">
+            <label for="weight" data-translate="weight-grams"
+              >Weight (grams) *</label
+            >
+            <input
+              type="number"
+              id="weight"
+              name="weight"
+              step="0.01"
+              min="0.01"
+              data-translate-placeholder="weight-placeholder"
+              placeholder="0.00"
+              required
+            />
+          </div>
 
-                <div class="form-group">
-                    <label for="purity">Gold Purity (%) *</label>
-                    <select id="purity" name="purity" required>
-                        <option value="">Select purity...</option>
-                        <option value="37.5">9K (37.5%)</option>
-                        <option value="41.7">10K (41.7%)</option>
-                        <option value="58.3">14K (58.3%)</option>
-                        <option value="75">18K (75%)</option>
-                        <option value="91.7">22K (91.7%)</option>
-                        <option value="99.9">24K (99.9%)</option>
-                    </select>
-                </div>
+          <div class="form-group">
+            <label for="purity" data-translate="gold-purity"
+              >Gold Purity (%) *</label
+            >
+            <select id="purity" name="purity" required>
+              <option value="" data-translate="select-purity">
+                Select purity...
+              </option>
+              <option value="37.5">9K (37.5%)</option>
+              <option value="41.7">10K (41.7%)</option>
+              <option value="58.3">14K (58.3%)</option>
+              <option value="75">18K (75%)</option>
+              <option value="91.7">22K (91.7%)</option>
+              <option value="99.9">24K (99.9%)</option>
+            </select>
+          </div>
 
-                <div class="form-group">
-                    <label for="cost">Purchase/Cost Price ($) *</label>
-                    <input type="number" id="cost" name="cost" step="0.01" min="0" placeholder="0.00" required>
-                </div>
+          <div class="form-group">
+            <label for="cost" data-translate="purchase-cost"
+              >Purchase/Cost Price ($) *</label
+            >
+            <input
+              type="number"
+              id="cost"
+              name="cost"
+              step="0.01"
+              min="0"
+              data-translate-placeholder="cost-placeholder"
+              placeholder="0.00"
+              required
+            />
+          </div>
 
-                <div class="form-group">
-                    <label for="description">Description (optional)</label>
-                    <textarea id="description" name="description" placeholder="Additional details about the item..."></textarea>
-                </div>
+          <div class="form-group">
+            <label for="description" data-translate="description"
+              >Description (optional)</label
+            >
+            <textarea
+              id="description"
+              name="description"
+              data-translate-placeholder="description-placeholder"
+              placeholder="Additional details about the item..."
+            ></textarea>
+          </div>
 
-                <div class="action-buttons">
-                    <button type="submit" class="btn primary">💾 Save Item</button>
-                    <a href="/" class="btn">❌ Cancel</a>
-                </div>
-            </form>
-        </div>
+          <div class="action-buttons">
+            <button
+              type="submit"
+              class="btn primary"
+              data-translate="save-item"
+            >
+              💾 Save Item
+            </button>
+            <a href="/" class="btn" data-translate="cancel">❌ Cancel</a>
+          </div>
+        </form>
+      </div>
     </div>
 
+    <script src="/js/language.js"></script>
     <script>
-        // Auto-calculate estimated value based on weight and current gold price
-        document.getElementById('weight').addEventListener('input', updateEstimate);
-        document.getElementById('purity').addEventListener('change', updateEstimate);
+      // Auto-calculate estimated value based on weight and current gold price
+      document
+        .getElementById("weight")
+        .addEventListener("input", updateEstimate);
+      document
+        .getElementById("purity")
+        .addEventListener("change", updateEstimate);
 
-        function updateEstimate() {
-            const weight = parseFloat(document.getElementById('weight').value) || 0;
-            const purity = parseFloat(document.getElementById('purity').value) || 0;
-            
-            // This would require getting the current gold price from settings
-            // For now, we'll show this calculation after the item is added
-        }
+      function updateEstimate() {
+        const weight = parseFloat(document.getElementById("weight").value) || 0;
+        const purity = parseFloat(document.getElementById("purity").value) || 0;
+
+        // This would require getting the current gold price from settings
+        // For now, we'll show this calculation after the item is added
+      }
     </script>
-</body>
+  </body>
 </html>

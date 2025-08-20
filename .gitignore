@@ -1,0 +1,50 @@
+# Real data files - NEVER commit these to GitHub
+data/inventory.json
+data/sales.json
+data/settings.json
+
+# Encrypted data files
+data/*.enc
+
+# Encryption keys - NEVER commit these to GitHub
+data/.encryption_key
+data/encryption_key*
+
+# User-specific data
+data/user_*.json
+data/encrypted_*.json
+
+# Backup files
+data/backups/
+data/*.backup
+
+# Log files
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Node modules
+node_modules/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp

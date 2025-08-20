@@ -2,9 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
+const DataEncryption = require("./utils/encryption");
 
 const app = express();
 const PORT = 3000;
+
+// Initialize encryption
+const encryption = new DataEncryption();
 
 // Set up middleware
 app.use(bodyParser.json());
@@ -14,9 +18,9 @@ app.set("view engine", "ejs");
 app.set("views", "./views");
 
 // Data file paths
-const INVENTORY_FILE = "./data/inventory.json";
-const SALES_FILE = "./data/sales.json";
-const SETTINGS_FILE = "./data/settings.json";
+const INVENTORY_FILE = "inventory";
+const SALES_FILE = "sales";
+const SETTINGS_FILE = "settings";
 
 // Initialize data files if they don't exist
 function initializeDataFiles() {
@@ -25,48 +29,74 @@ function initializeDataFiles() {
   const defaultSettings = {
     goldPrice: 50, // Default gold price per gram
     currency: "USD",
+    businessName: "Your Jewelry Business",
+    businessAddress: "",
+    businessPhone: "",
+    businessEmail: "",
+    taxRate: 0,
+    defaultPurity: 58.3,
+    backupFrequency: "daily",
+    privacyLevel: "encrypted",
+    lastUpdated: new Date().toISOString(),
   };
 
   if (!fs.existsSync("./data")) {
     fs.mkdirSync("./data");
   }
 
-  if (!fs.existsSync(INVENTORY_FILE)) {
-    fs.writeFileSync(INVENTORY_FILE, JSON.stringify(defaultInventory, null, 2));
+  // Check if encrypted files exist, if not create them
+  if (!encryption.encryptedFileExists(INVENTORY_FILE)) {
+    encryption.saveEncryptedData(INVENTORY_FILE, defaultInventory);
+    console.log("Created encrypted inventory file");
   }
 
-  if (!fs.existsSync(SALES_FILE)) {
-    fs.writeFileSync(SALES_FILE, JSON.stringify(defaultSales, null, 2));
+  if (!encryption.encryptedFileExists(SALES_FILE)) {
+    encryption.saveEncryptedData(SALES_FILE, defaultSales);
+    console.log("Created encrypted sales file");
   }
 
-  if (!fs.existsSync(SETTINGS_FILE)) {
-    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(defaultSettings, null, 2));
+  if (!encryption.encryptedFileExists(SETTINGS_FILE)) {
+    encryption.saveEncryptedData(SETTINGS_FILE, defaultSettings);
+    console.log("Created encrypted settings file");
+  }
+
+  // Create backup directory
+  const backupDir = path.join("./data", "backups");
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir, { recursive: true });
   }
 }
 
-// Helper functions to read/write data
-function readJSONFile(filePath) {
+// Helper functions to read/write encrypted data
+function readEncryptedData(fileName) {
   try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    const data = encryption.loadEncryptedData(fileName);
+    return data || [];
   } catch (error) {
-    console.error("Error reading file:", filePath, error);
+    console.error(`Error reading encrypted file ${fileName}:`, error);
     return [];
   }
 }
 
-function writeJSONFile(filePath, data) {
+function writeEncryptedData(fileName, data) {
   try {
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    encryption.saveEncryptedData(fileName, data);
+
+    // Create backup
+    encryption.backupEncryptedData(fileName);
+
+    return true;
   } catch (error) {
-    console.error("Error writing file:", filePath, error);
+    console.error(`Error writing encrypted file ${fileName}:`, error);
+    return false;
   }
 }
 
 // Routes
 app.get("/", (req, res) => {
-  const inventory = readJSONFile(INVENTORY_FILE);
-  const sales = readJSONFile(SALES_FILE);
-  const settings = readJSONFile(SETTINGS_FILE);
+  const inventory = readEncryptedData(INVENTORY_FILE);
+  const sales = readEncryptedData(SALES_FILE);
+  const settings = readEncryptedData(SETTINGS_FILE);
 
   // Calculate totals
   const totalInventoryValue = inventory.reduce(
@@ -95,7 +125,7 @@ app.get("/add-item", (req, res) => {
 
 app.post("/add-item", (req, res) => {
   const { name, type, weight, purity, cost, description } = req.body;
-  const inventory = readJSONFile(INVENTORY_FILE);
+  const inventory = readEncryptedData(INVENTORY_FILE);
 
   const newItem = {
     id: Date.now().toString(),
@@ -109,13 +139,16 @@ app.post("/add-item", (req, res) => {
   };
 
   inventory.push(newItem);
-  writeJSONFile(INVENTORY_FILE, inventory);
 
-  res.redirect("/");
+  if (writeEncryptedData(INVENTORY_FILE, inventory)) {
+    res.redirect("/");
+  } else {
+    res.status(500).send("Error saving item. Please try again.");
+  }
 });
 
 app.get("/sell-item/:id", (req, res) => {
-  const inventory = readJSONFile(INVENTORY_FILE);
+  const inventory = readEncryptedData(INVENTORY_FILE);
   const item = inventory.find((i) => i.id === req.params.id);
   if (item) {
     res.render("sell-item", { item });
@@ -126,8 +159,8 @@ app.get("/sell-item/:id", (req, res) => {
 
 app.post("/sell-item/:id", (req, res) => {
   const { price, buyer, notes } = req.body;
-  const inventory = readJSONFile(INVENTORY_FILE);
-  const sales = readJSONFile(SALES_FILE);
+  const inventory = readEncryptedData(INVENTORY_FILE);
+  const sales = readEncryptedData(SALES_FILE);
 
   const itemIndex = inventory.findIndex((i) => i.id === req.params.id);
   if (itemIndex !== -1) {
@@ -149,44 +182,164 @@ app.post("/sell-item/:id", (req, res) => {
     };
 
     sales.push(sale);
-    writeJSONFile(SALES_FILE, sales);
+
+    // Save sales data
+    if (!writeEncryptedData(SALES_FILE, sales)) {
+      return res.status(500).send("Error saving sale. Please try again.");
+    }
 
     // Remove item from inventory
     inventory.splice(itemIndex, 1);
-    writeJSONFile(INVENTORY_FILE, inventory);
+
+    if (!writeEncryptedData(INVENTORY_FILE, inventory)) {
+      return res
+        .status(500)
+        .send("Error updating inventory. Please try again.");
+    }
   }
 
   res.redirect("/");
 });
 
 app.get("/settings", (req, res) => {
-  const settings = readJSONFile(SETTINGS_FILE);
+  const settings = readEncryptedData(SETTINGS_FILE);
   res.render("settings", { settings });
 });
 
 app.post("/settings", (req, res) => {
-  const { goldPrice, currency } = req.body;
+  const {
+    goldPrice,
+    currency,
+    businessName,
+    businessAddress,
+    businessPhone,
+    businessEmail,
+    taxRate,
+    defaultPurity,
+    backupFrequency,
+  } = req.body;
+  const currentSettings = readEncryptedData(SETTINGS_FILE);
+
   const settings = {
+    ...currentSettings,
     goldPrice: parseFloat(goldPrice),
     currency,
+    businessName: businessName || currentSettings.businessName,
+    businessAddress: businessAddress || currentSettings.businessAddress,
+    businessPhone: businessPhone || currentSettings.businessPhone,
+    businessEmail: businessEmail || currentSettings.businessEmail,
+    taxRate: parseFloat(taxRate) || 0,
+    defaultPurity: parseFloat(defaultPurity) || 58.3,
+    backupFrequency: backupFrequency || "daily",
+    privacyLevel: "encrypted",
+    lastUpdated: new Date().toISOString(),
   };
-  writeJSONFile(SETTINGS_FILE, settings);
-  res.redirect("/");
+
+  if (writeEncryptedData(SETTINGS_FILE, settings)) {
+    res.redirect("/");
+  } else {
+    res.status(500).send("Error saving settings. Please try again.");
+  }
 });
 
 app.delete("/item/:id", (req, res) => {
-  const inventory = readJSONFile(INVENTORY_FILE);
+  const inventory = readEncryptedData(INVENTORY_FILE);
   const filteredInventory = inventory.filter(
     (item) => item.id !== req.params.id
   );
-  writeJSONFile(INVENTORY_FILE, filteredInventory);
-  res.json({ success: true });
+
+  if (writeEncryptedData(INVENTORY_FILE, filteredInventory)) {
+    res.json({ success: true });
+  } else {
+    res.status(500).json({ success: false, error: "Failed to delete item" });
+  }
+});
+
+// Data management routes
+app.get("/api/backup", (req, res) => {
+  try {
+    const inventory = readEncryptedData(INVENTORY_FILE);
+    const sales = readEncryptedData(SALES_FILE);
+    const settings = readEncryptedData(SETTINGS_FILE);
+
+    const backup = {
+      inventory,
+      sales,
+      settings,
+      timestamp: new Date().toISOString(),
+      version: "1.0",
+    };
+
+    const backupPath = encryption.saveEncryptedData(
+      "backup_" + Date.now(),
+      backup
+    );
+    res.json({ success: true, backupPath });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/wipe-data", (req, res) => {
+  try {
+    const { confirm } = req.body;
+    if (confirm !== "I UNDERSTAND THIS WILL DELETE ALL DATA PERMANENTLY") {
+      return res
+        .status(400)
+        .json({ success: false, error: "Confirmation text does not match" });
+    }
+
+    encryption.wipeEncryptedData(INVENTORY_FILE);
+    encryption.wipeEncryptedData(SALES_FILE);
+    encryption.wipeEncryptedData(SETTINGS_FILE);
+
+    // Reinitialize with default data
+    initializeDataFiles();
+
+    res.json({
+      success: true,
+      message: "All data has been permanently deleted",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get("/api/export", (req, res) => {
+  try {
+    const inventory = readEncryptedData(INVENTORY_FILE);
+    const sales = readEncryptedData(SALES_FILE);
+    const settings = readEncryptedData(SETTINGS_FILE);
+
+    const exportData = {
+      inventory,
+      sales,
+      settings,
+      exportDate: new Date().toISOString(),
+      version: "1.0",
+    };
+
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="jewelry-inventory-export-${Date.now()}.json"`
+    );
+    res.json(exportData);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // Initialize data files and start server
 initializeDataFiles();
 
 app.listen(PORT, () => {
-  console.log(`Jewelry Inventory Tracker running on http://localhost:${PORT}`);
+  console.log(
+    `🔐 Encrypted Jewelry Inventory Tracker running on http://localhost:${PORT}`
+  );
+  console.log("📁 Data is encrypted and stored locally for maximum privacy");
+  console.log(
+    "🔒 Real data is isolated from GitHub - only example data is shared"
+  );
   console.log("Press Ctrl+C to stop the server");
 });

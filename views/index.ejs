@@ -9,46 +9,52 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>💎 Gold Jewelry Inventory</h1>
-        <p>Simple tracking for your jewelry business</p>
+        <h1 data-translate="header-title">💎 Gold Jewelry Inventory</h1>
+        <p data-translate="header-subtitle">
+          Simple tracking for your jewelry business
+        </p>
       </div>
 
       <div class="summary-cards">
         <div class="summary-card">
-          <h3>📦 Inventory Value</h3>
+          <h3 data-translate="inventory-value">📦 Inventory Value</h3>
           <div class="amount">$<%= totalInventoryValue.toFixed(2) %></div>
         </div>
         <div class="summary-card sales">
-          <h3>💰 Total Sales</h3>
+          <h3 data-translate="total-sales">💰 Total Sales</h3>
           <div class="amount">$<%= totalSales.toFixed(2) %></div>
         </div>
         <div class="summary-card profit">
-          <h3>📈 Total Profit</h3>
+          <h3 data-translate="total-profit">📈 Total Profit</h3>
           <div class="amount">$<%= totalProfit.toFixed(2) %></div>
         </div>
       </div>
 
       <div class="action-buttons">
-        <a href="/add-item" class="btn primary">➕ Add New Item</a>
-        <a href="/settings" class="btn secondary">⚙️ Settings</a>
+        <a href="/add-item" class="btn primary" data-translate="add-new-item"
+          >➕ Add New Item</a
+        >
+        <a href="/settings" class="btn secondary" data-translate="settings"
+          >⚙️ Settings</a
+        >
       </div>
 
       <% if (inventory.length > 0) { %>
       <div class="table-container">
         <div class="table-header">
-          <h2>📋 Current Inventory</h2>
+          <h2 data-translate="current-inventory">📋 Current Inventory</h2>
         </div>
         <table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Weight (g)</th>
-              <th>Purity</th>
-              <th>Cost</th>
-              <th>Est. Value</th>
-              <th>Date Added</th>
-              <th>Actions</th>
+              <th data-translate="name">Name</th>
+              <th data-translate="type">Type</th>
+              <th data-translate="weight">Weight (g)</th>
+              <th data-translate="purity">Purity</th>
+              <th data-translate="cost">Cost</th>
+              <th data-translate="est-value">Est. Value</th>
+              <th data-translate="date-added">Date Added</th>
+              <th data-translate="actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -62,12 +68,16 @@
               <td>$<%= (item.weight * settings.goldPrice).toFixed(2) %></td>
               <td><%= new Date(item.dateAdded).toLocaleDateString() %></td>
               <td class="table-actions">
-                <a href="/sell-item/<%= item.id %>" class="btn primary small"
+                <a
+                  href="/sell-item/<%= item.id %>"
+                  class="btn primary small"
+                  data-translate="sell"
                   >💰 Sell</a
                 >
                 <button
                   onclick="deleteItem('<%= item.id %>')"
                   class="btn danger small"
+                  data-translate="delete"
                 >
                   🗑️ Delete
                 </button>
@@ -79,26 +89,30 @@
       </div>
       <% } else { %>
       <div class="empty-state">
-        <h3>📦 No Items in Inventory</h3>
-        <p>Start by adding your first jewelry item to track your inventory!</p>
-        <a href="/add-item" class="btn primary">➕ Add Your First Item</a>
+        <h3 data-translate="no-items">📦 No Items in Inventory</h3>
+        <p data-translate="start-adding">
+          Start by adding your first jewelry item to track your inventory!
+        </p>
+        <a href="/add-item" class="btn primary" data-translate="add-first-item"
+          >➕ Add Your First Item</a
+        >
       </div>
       <% } %> <% if (sales.length > 0) { %>
       <div class="table-container">
         <div class="table-header">
-          <h2>💵 Recent Sales</h2>
+          <h2 data-translate="recent-sales">💵 Recent Sales</h2>
         </div>
         <table>
           <thead>
             <tr>
-              <th>Item Name</th>
-              <th>Type</th>
-              <th>Weight (g)</th>
-              <th>Cost</th>
-              <th>Sale Price</th>
-              <th>Profit</th>
-              <th>Buyer</th>
-              <th>Date Sold</th>
+              <th data-translate="name">Item Name</th>
+              <th data-translate="type">Type</th>
+              <th data-translate="weight">Weight (g)</th>
+              <th data-translate="cost">Cost</th>
+              <th data-translate="sale-price">Sale Price</th>
+              <th data-translate="profit">Profit</th>
+              <th data-translate="buyer">Buyer</th>
+              <th data-translate="date-sold">Date Sold</th>
             </tr>
           </thead>
           <tbody>
@@ -124,13 +138,15 @@
       <% } %>
     </div>
 
+    <script src="/js/language.js"></script>
     <script>
       function deleteItem(itemId) {
-        if (
-          confirm(
-            "Are you sure you want to delete this item? This action cannot be undone."
-          )
-        ) {
+        const confirmMessage =
+          LanguageManager.currentLanguage === "es"
+            ? LanguageManager.translations.es["delete-confirm"]
+            : LanguageManager.translations.en["delete-confirm"];
+
+        if (confirm(confirmMessage)) {
           fetch(`/item/${itemId}`, {
             method: "DELETE",
           })
@@ -139,11 +155,19 @@
               if (data.success) {
                 location.reload();
               } else {
-                alert("Error deleting item. Please try again.");
+                const errorMessage =
+                  LanguageManager.currentLanguage === "es"
+                    ? LanguageManager.translations.es["error-deleting"]
+                    : LanguageManager.translations.en["error-deleting"];
+                alert(errorMessage);
               }
             })
             .catch((error) => {
-              alert("Error deleting item. Please try again.");
+              const errorMessage =
+                LanguageManager.currentLanguage === "es"
+                  ? LanguageManager.translations.es["error-deleting"]
+                  : LanguageManager.translations.en["error-deleting"];
+              alert(errorMessage);
             });
         }
       }
