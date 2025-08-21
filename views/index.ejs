@@ -72,10 +72,51 @@
         </div>
         <% } else { %>
         <div class="table-container">
-          <table class="inventory-table">
+          <!-- Inventory Sorting Controls -->
+          <div
+            class="sorting-controls"
+            style="margin-bottom: 15px; text-align: right"
+          >
+            <span style="margin-right: 10px; color: #666">Sort by:</span>
+            <button
+              onclick="sortInventory('inventory-number')"
+              class="btn small secondary"
+            >
+              Inventory Number
+            </button>
+            <button
+              onclick="sortInventory('weight')"
+              class="btn small secondary"
+            >
+              Weight
+            </button>
+            <button
+              onclick="sortInventory('karat')"
+              class="btn small secondary"
+            >
+              Karat
+            </button>
+            <button onclick="sortInventory('cost')" class="btn small secondary">
+              Cost
+            </button>
+            <button
+              onclick="sortInventory('market-value')"
+              class="btn small secondary"
+            >
+              Market Value
+            </button>
+            <button
+              onclick="sortInventory('dealer-value')"
+              class="btn small secondary"
+            >
+              Dealer Value
+            </button>
+          </div>
+
+          <table class="inventory-table" id="inventoryTable">
             <thead>
               <tr>
-                <th data-translate="item-name">Item Name</th>
+                <th data-translate="inventory-number">Inventory Number</th>
                 <th data-translate="item-type">Type</th>
                 <th data-translate="item-weight">Weight (g)</th>
                 <th data-translate="item-purity">Purity</th>
@@ -138,17 +179,48 @@
         </div>
         <% } else { %>
         <div class="table-container">
-          <table class="sales-table">
+          <!-- Sales Sorting Controls -->
+          <div
+            class="sorting-controls"
+            style="margin-bottom: 15px; text-align: right"
+          >
+            <span style="margin-right: 10px; color: #666">Sort by:</span>
+            <button
+              onclick="sortSales('inventory-number')"
+              class="btn small secondary"
+            >
+              Inventory Number
+            </button>
+            <button onclick="sortSales('weight')" class="btn small secondary">
+              Weight
+            </button>
+            <button onclick="sortSales('karat')" class="btn small secondary">
+              Karat
+            </button>
+            <button onclick="sortSales('cost')" class="btn small secondary">
+              Cost
+            </button>
+            <button onclick="sortSales('price')" class="btn small secondary">
+              Sale Price
+            </button>
+            <button onclick="sortSales('profit')" class="btn small secondary">
+              Profit
+            </button>
+            <button onclick="sortSales('date')" class="btn small secondary">
+              Date
+            </button>
+          </div>
+
+          <table class="sales-table" id="salesTable">
             <thead>
               <tr>
-                <th data-translate="sale-item">Item</th>
+                <th data-translate="inventory-number">Inventory Number</th>
                 <th data-translate="sale-weight">Weight (g)</th>
                 <th data-translate="sale-purity">Purity</th>
                 <th data-translate="sale-karat">Karat</th>
                 <th data-translate="sale-cost">Cost</th>
                 <th data-translate="sale-price">Sale Price</th>
                 <th data-translate="sale-profit">Profit</th>
-                <th data-translate="sale-buyer">Buyer</th>
                 <th data-translate="sale-date">Date</th>
               </tr>
             </thead>
@@ -169,7 +241,6 @@
                 <td class="<%= sale.profit >= 0 ? 'positive' : 'negative' %>">
                   $<%= sale.profit.toFixed(2) %>
                 </td>
-                <td><%= sale.buyer %></td>
                 <td><%= new Date(sale.dateSold).toLocaleDateString() %></td>
               </tr>
               <% }); %>
@@ -221,6 +292,20 @@
       </div>
     </div>
 
+    <!-- Credit Line -->
+    <div
+      style="
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        border-top: 1px solid #eee;
+      "
+    >
+      <small style="color: #888; font-size: 12px">
+        Website system created by Cristian Hernandez
+      </small>
+    </div>
+
     <script src="/js/language.js"></script>
     <script>
       function deleteItem(itemId) {
@@ -257,6 +342,108 @@
         if (purity >= 40.0) return "10K";
         if (purity >= 35.0) return "9K";
         return "Custom";
+      }
+
+      // Inventory sorting function
+      function sortInventory(column) {
+        const table = document.getElementById("inventoryTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort((a, b) => {
+          let aValue, bValue;
+
+          switch (column) {
+            case "inventory-number":
+              aValue = a.cells[0].textContent;
+              bValue = b.cells[0].textContent;
+              return aValue.localeCompare(bValue);
+            case "weight":
+              aValue = parseFloat(a.cells[2].textContent);
+              bValue = parseFloat(b.cells[2].textContent);
+              return aValue - bValue;
+            case "karat":
+              aValue = a.cells[4].textContent;
+              bValue = b.cells[4].textContent;
+              return aValue.localeCompare(bValue);
+            case "cost":
+              aValue = parseFloat(a.cells[5].textContent.replace("$", ""));
+              bValue = parseFloat(b.cells[5].textContent.replace("$", ""));
+              return aValue - bValue;
+            case "market-value":
+              aValue =
+                a.cells[6].textContent === "N/A"
+                  ? 0
+                  : parseFloat(a.cells[6].textContent.replace("$", ""));
+              bValue =
+                b.cells[6].textContent === "N/A"
+                  ? 0
+                  : parseFloat(b.cells[6].textContent.replace("$", ""));
+              return aValue - bValue;
+            case "dealer-value":
+              aValue =
+                a.cells[7].textContent === "N/A"
+                  ? 0
+                  : parseFloat(a.cells[7].textContent.replace("$", ""));
+              bValue =
+                b.cells[7].textContent === "N/A"
+                  ? 0
+                  : parseFloat(b.cells[7].textContent.replace("$", ""));
+              return aValue - bValue;
+            default:
+              return 0;
+          }
+        });
+
+        // Clear and re-append sorted rows
+        rows.forEach((row) => tbody.appendChild(row));
+      }
+
+      // Sales sorting function
+      function sortSales(column) {
+        const table = document.getElementById("salesTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort((a, b) => {
+          let aValue, bValue;
+
+          switch (column) {
+            case "inventory-number":
+              aValue = a.cells[0].textContent;
+              bValue = b.cells[0].textContent;
+              return aValue.localeCompare(bValue);
+            case "weight":
+              aValue = parseFloat(a.cells[1].textContent);
+              bValue = parseFloat(b.cells[1].textContent);
+              return aValue - bValue;
+            case "karat":
+              aValue = a.cells[3].textContent;
+              bValue = b.cells[3].textContent;
+              return aValue.localeCompare(bValue);
+            case "cost":
+              aValue = parseFloat(a.cells[4].textContent.replace("$", ""));
+              bValue = parseFloat(b.cells[4].textContent.replace("$", ""));
+              return aValue - bValue;
+            case "price":
+              aValue = parseFloat(a.cells[5].textContent.replace("$", ""));
+              bValue = parseFloat(b.cells[5].textContent.replace("$", ""));
+              return aValue - bValue;
+            case "profit":
+              aValue = parseFloat(a.cells[6].textContent.replace("$", ""));
+              bValue = parseFloat(b.cells[6].textContent.replace("$", ""));
+              return aValue - bValue;
+            case "date":
+              aValue = new Date(a.cells[7].textContent);
+              bValue = new Date(b.cells[7].textContent);
+              return aValue - bValue;
+            default:
+              return 0;
+          }
+        });
+
+        // Clear and re-append sorted rows
+        rows.forEach((row) => tbody.appendChild(row));
       }
     </script>
   </body>

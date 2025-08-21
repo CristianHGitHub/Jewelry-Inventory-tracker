@@ -20,7 +20,8 @@
         <div class="summary-card" style="margin-bottom: 30px">
           <h3 data-translate="item-details">Item Details</h3>
           <div style="text-align: left; font-size: 1.1em; margin-top: 15px">
-            <strong data-translate="name">Name:</strong> <%= item.name %><br />
+            <strong data-translate="inventory-number">Inventory Number:</strong>
+            <%= item.name %><br />
             <strong data-translate="type">Type:</strong> <%= item.type %><br />
             <strong data-translate="weight">Weight:</strong> <%= item.weight
             %>g<br />
@@ -56,27 +57,6 @@
             ></div>
           </div>
 
-          <div class="form-group">
-            <label for="buyer" data-translate="buyer-name">Buyer Name</label>
-            <input
-              type="text"
-              id="buyer"
-              name="buyer"
-              data-translate-placeholder="buyer-placeholder"
-              placeholder="Customer name or business"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="notes" data-translate="sale-notes">Sale Notes</label>
-            <textarea
-              id="notes"
-              name="notes"
-              data-translate-placeholder="notes-placeholder"
-              placeholder="Any additional notes about the sale..."
-            ></textarea>
-          </div>
-
           <div class="action-buttons">
             <button
               type="submit"
@@ -89,6 +69,20 @@
           </div>
         </form>
       </div>
+    </div>
+
+    <!-- Credit Line -->
+    <div
+      style="
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        border-top: 1px solid #eee;
+      "
+    >
+      <small style="color: #888; font-size: 12px">
+        Website system created by Cristian Hernandez
+      </small>
     </div>
 
     <script src="/js/language.js"></script>

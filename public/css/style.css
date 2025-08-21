@@ -371,6 +371,17 @@ table tr:nth-child(even) {
   font-weight: bold;
 }
 
+/* Remove spinner arrows from number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* Loading and success messages */
 .message {
   padding: 15px;

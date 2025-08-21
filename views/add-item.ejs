@@ -21,13 +21,16 @@
       <div class="form-container">
         <form action="/add-item" method="POST" id="addItemForm">
           <div class="form-group">
-            <label for="name" data-translate="item-name">Item Name</label>
+            <label for="name" data-translate="inventory-number"
+              >Inventory Number</label
+            >
             <input
               type="text"
               id="name"
               name="name"
               required
-              placeholder="Gold Ring, Necklace, Bracelet"
+              data-translate-placeholder="inventory-number-placeholder"
+              placeholder="INV-001, INV-002, etc."
             />
           </div>
 
@@ -151,7 +154,7 @@
             id="goldValueCard"
             data-gold-price="<%= (settings && settings.goldPricePerOunce) || 3355.3 %>"
           >
-            <h3>💰 Real-Time Gold Value Calculation</h3>
+            <h3>Gold Value</h3>
             <div
               id="goldValueDetails"
               style="font-size: 1em; line-height: 1.8; margin-top: 15px"
@@ -172,6 +175,20 @@
           </div>
         </form>
       </div>
+    </div>
+
+    <!-- Credit Line -->
+    <div
+      style="
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        border-top: 1px solid #eee;
+      "
+    >
+      <small style="color: #888; font-size: 12px">
+        Website system created by Cristian Hernandez
+      </small>
     </div>
 
     <script src="/js/language.js"></script>
@@ -234,11 +251,17 @@
         // Calculate values
         const goldPricePerGram = currentGoldPrice / 31.1035; // Convert from troy ounce to gram
         const pureGoldGrams = weight * (purity / 100);
-        const marketValue = pureGoldGrams * goldPricePerGram;
 
-        // Determine dealer markup based on purity
-        const dealerMarkup = getDealerMarkup(purity);
-        const dealerValue = marketValue * dealerMarkup;
+        // Market value calculation - adjust for realistic pricing
+        // 14K gold typically sells for around $70-75 per gram retail
+        const retailMarkup = 1.3; // 30% markup for retail pricing
+        const marketValue = pureGoldGrams * goldPricePerGram * retailMarkup;
+
+        // Get dealer value directly from Kitco prices
+        const dealerValue = getDealerValue(weight, purity);
+
+        // Calculate dealer markup percentage for display
+        const dealerMarkup = dealerValue / marketValue;
         const markupPercentage = (1 - dealerMarkup) * 100;
 
         // Determine karat
@@ -249,31 +272,9 @@
         const goldValueDetails = document.getElementById("goldValueDetails");
 
         goldValueDetails.innerHTML = `
-              <strong>Item Details:</strong><br>
-              • Weight: ${weight.toFixed(2)} grams<br>
-              • Purity: ${purity.toFixed(1)}% (${karat})<br>
-              • Pure Gold Content: ${pureGoldGrams.toFixed(2)} grams<br><br>
-
-              <strong>Current Market Values:</strong><br>
-              • Gold Price: $${currentGoldPrice.toFixed(2)} per troy ounce<br>
-              • Gold Price: $${goldPricePerGram.toFixed(2)} per gram<br>
-              • Market Value: $${marketValue.toFixed(2)}<br><br>
-
-              <strong>Dealer Pricing (What dealers actually pay):</strong><br>
-              • Dealer Pays: ${(dealerMarkup * 100).toFixed(
-                0
-              )}% of market value<br>
-              • Dealer Markup: ${markupPercentage.toFixed(0)}%<br>
-              • <strong>Dealer Value: $${dealerValue.toFixed(
-                2
-              )}</strong><br><br>
-
-              <strong>💡 Business Insight:</strong><br>
-              This item contains ${pureGoldGrams.toFixed(2)} grams of pure gold.
-              Dealers typically pay ${(dealerMarkup * 100).toFixed(
-                0
-              )}% of the market value
-              for ${karat} gold, which includes their processing costs and profit margin.
+              <strong>${weight.toFixed(2)}g ${karat} Gold</strong><br>
+              Market Value: $${marketValue.toFixed(2)}<br>
+              Dealer Value: $${dealerValue.toFixed(2)}
           `;
 
         goldValueCard.style.display = "block";
@@ -283,22 +284,39 @@
         document.getElementById("goldValueCard").style.display = "none";
       }
 
-      // Dealer markup lookup based on purity
-      function getDealerMarkup(purity) {
-        const purityRanges = [
-          { min: 0, max: 40, markup: 0.65 }, // 9K-10K range
-          { min: 40, max: 60, markup: 0.75 }, // 14K range
-          { min: 60, max: 80, markup: 0.8 }, // 18K range
-          { min: 80, max: 95, markup: 0.85 }, // 22K range
-          { min: 95, max: 100, markup: 0.9 }, // 24K range
-        ];
+      // Get dealer value using exact Kitco pricing
+      function getDealerValue(weight, purity) {
+        // Kitco dealer prices per gram (exact prices you provided)
+        const kitcoDealerPrices = {
+          37.5: 33.71, // 9K Gold
+          41.7: 37.5, // 10K Gold
+          50.0: 45.26, // 12K Gold
+          58.3: 52.65, // 14K Gold
+          66.7: 60.59, // 16K Gold
+          75.0: 68.35, // 18K Gold
+          87.5: 79.9, // 21K Gold
+          90.0: 83.13, // 21.6K Gold Bar/Coin
+          91.7: 84.61, // 22K Gold
+          99.9: 87.75, // 24K Gold
+        };
 
-        for (const range of purityRanges) {
-          if (purity >= range.min && purity <= range.max) {
-            return range.markup;
+        // Find the closest purity match
+        let closestPurity = 58.3; // Default to 14K
+        let minDifference = 100;
+
+        for (const kitcoPurity in kitcoDealerPrices) {
+          const difference = Math.abs(purity - kitcoPurity);
+          if (difference < minDifference) {
+            minDifference = difference;
+            closestPurity = kitcoPurity;
           }
         }
-        return 0.75; // Default to 14K markup
+
+        // Get the Kitco dealer price for the closest purity
+        const kitcoDealerPrice = kitcoDealerPrices[closestPurity];
+
+        // Return dealer value: weight × Kitco dealer price (no scaling needed)
+        return weight * kitcoDealerPrice;
       }
 
       // Karat determination based on purity

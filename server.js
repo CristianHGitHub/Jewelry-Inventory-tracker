@@ -507,7 +507,7 @@ app.get("/sell-item/:id", (req, res) => {
 });
 
 app.post("/sell-item/:id", (req, res) => {
-  const { price, buyer, notes } = req.body;
+  const { price } = req.body;
   const inventory = readEncryptedData(INVENTORY_FILE);
   const sales = readEncryptedData(SALES_FILE);
 
@@ -525,8 +525,6 @@ app.post("/sell-item/:id", (req, res) => {
       cost: item.cost,
       price: parseFloat(price),
       profit: parseFloat(price) - item.cost,
-      buyer,
-      notes,
       dateSold: new Date().toISOString(),
       // Add gold value information
       karat: item.karat,
