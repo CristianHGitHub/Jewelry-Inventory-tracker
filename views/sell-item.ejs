@@ -3,25 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sell Jewelry Item</title>
+    <title data-translate="page-title-sell">Sell Jewelry Item</title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1 data-translate="sell-item">💰 Sell Item</h1>
-        <p data-translate="sell-item-subtitle">
-          Record the sale of your jewelry item
-        </p>
+        <h1 data-translate="sell-item">Sell Item</h1>
       </div>
 
       <div class="nav-links">
-        <a href="/" data-translate="back-dashboard">🏠 Back to Dashboard</a>
+        <a href="/" data-translate="nav-dashboard">🏠 Dashboard</a>
       </div>
 
       <div class="form-container">
         <div class="summary-card" style="margin-bottom: 30px">
-          <h3 data-translate="item-details">📋 Item Details</h3>
+          <h3 data-translate="item-details">Item Details</h3>
           <div style="text-align: left; font-size: 1.1em; margin-top: 15px">
             <strong data-translate="name">Name:</strong> <%= item.name %><br />
             <strong data-translate="type">Type:</strong> <%= item.type %><br />
@@ -41,7 +38,7 @@
         <form action="/sell-item/<%= item.id %>" method="POST">
           <div class="form-group">
             <label for="price" data-translate="sale-price-label"
-              >Sale Price ($) *</label
+              >Sale Price ($)</label
             >
             <input
               type="number"
@@ -60,9 +57,7 @@
           </div>
 
           <div class="form-group">
-            <label for="buyer" data-translate="buyer-name"
-              >Buyer Name (optional)</label
-            >
+            <label for="buyer" data-translate="buyer-name">Buyer Name</label>
             <input
               type="text"
               id="buyer"
@@ -73,9 +68,7 @@
           </div>
 
           <div class="form-group">
-            <label for="notes" data-translate="sale-notes"
-              >Sale Notes (optional)</label
-            >
+            <label for="notes" data-translate="sale-notes">Sale Notes</label>
             <textarea
               id="notes"
               name="notes"
@@ -90,9 +83,9 @@
               class="btn primary"
               data-translate="complete-sale"
             >
-              💰 Complete Sale
+              Complete Sale
             </button>
-            <a href="/" class="btn" data-translate="cancel">❌ Cancel</a>
+            <a href="/" class="btn" data-translate="cancel">Cancel</a>
           </div>
         </form>
       </div>

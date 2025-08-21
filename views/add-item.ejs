@@ -3,52 +3,62 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add Item - Jewelry Inventory Tracker</title>
+    <title data-translate="page-title-add">
+      Add Item - Jewelry Inventory Tracker
+    </title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1 data-translate="add-item-title">➕ Add New Item</h1>
-        <p data-translate="add-item-subtitle">
-          Add a new jewelry item to your inventory
-        </p>
+        <h1 data-translate="add-item">Add Item</h1>
       </div>
 
       <div class="nav-links">
-        <a href="/" data-translate="back-dashboard">🏠 Back to Dashboard</a>
+        <a href="/" data-translate="nav-dashboard">🏠 Dashboard</a>
       </div>
 
       <div class="form-container">
         <form action="/add-item" method="POST" id="addItemForm">
           <div class="form-group">
-            <label for="name" data-translate="item-name">Item Name *</label>
+            <label for="name" data-translate="item-name">Item Name</label>
             <input
               type="text"
               id="name"
               name="name"
               required
-              placeholder="e.g., Gold Ring, Necklace, Bracelet"
+              placeholder="Gold Ring, Necklace, Bracelet"
             />
           </div>
 
           <div class="form-group">
-            <label for="type" data-translate="item-type">Item Type *</label>
+            <label for="type" data-translate="jewelry-type">Item Type</label>
             <select id="type" name="type" required>
-              <option value="">Select item type</option>
-              <option value="Ring">Ring</option>
-              <option value="Necklace">Necklace</option>
-              <option value="Bracelet">Bracelet</option>
-              <option value="Earrings">Earrings</option>
-              <option value="Chain">Chain</option>
-              <option value="Pendant">Pendant</option>
-              <option value="Other">Other</option>
+              <option value="" data-translate="select-jewelry-type">
+                Select type
+              </option>
+              <option value="Ring" data-translate="ring">Ring</option>
+              <option value="Necklace" data-translate="necklace">
+                Necklace
+              </option>
+              <option value="Bracelet" data-translate="bracelet">
+                Bracelet
+              </option>
+              <option value="Earrings" data-translate="earrings">
+                Earrings
+              </option>
+              <option value="Chain" data-translate="chain">Chain</option>
+              <option value="Pendant" data-translate="pendant">Pendant</option>
+              <option value="Other" data-translate="other">Other</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="weight" data-translate="item-weight"
-              >Weight (grams) *</label
+            <label
+              for="weight"
+              data-translate="weight-grams"
+              data-translate="weight-grams"
+              >Weight (grams)</label
             >
             <input
               type="number"
@@ -57,13 +67,16 @@
               step="0.01"
               min="0.01"
               required
-              placeholder="e.g., 5.2"
+              placeholder="5.2"
             />
           </div>
 
           <div class="form-group">
-            <label for="purity" data-translate="item-purity"
-              >Gold Purity (%) *</label
+            <label
+              for="purity"
+              data-translate="gold-purity"
+              data-translate="gold-purity"
+              >Gold Purity (%)</label
             >
             <select
               id="purity"
@@ -71,14 +84,18 @@
               required
               onchange="calculateGoldValue()"
             >
-              <option value="">Select purity</option>
+              <option value="" data-translate="select-purity">
+                Select purity
+              </option>
               <option value="37.5">9K (37.5%)</option>
               <option value="41.7">10K (41.7%)</option>
               <option value="58.3">14K (58.3%)</option>
               <option value="75.0">18K (75.0%)</option>
               <option value="91.7">22K (91.7%)</option>
               <option value="99.9">24K (99.9%)</option>
-              <option value="custom">Custom Purity</option>
+              <option value="custom" data-translate="custom-purity">
+                Custom Purity
+              </option>
             </select>
             <input
               type="number"
@@ -94,8 +111,11 @@
           </div>
 
           <div class="form-group">
-            <label for="cost" data-translate="item-cost"
-              >Purchase Cost ($) *</label
+            <label
+              for="cost"
+              data-translate="purchase-cost"
+              data-translate="purchase-cost"
+              >Purchase Cost ($)</label
             >
             <input
               type="number"
@@ -109,13 +129,17 @@
           </div>
 
           <div class="form-group">
-            <label for="description" data-translate="item-description"
+            <label
+              for="description"
+              data-translate="item-description"
+              data-translate="item-description"
               >Description</label
             >
             <textarea
               id="description"
               name="description"
               rows="3"
+              data-translate-placeholder="description-placeholder"
               placeholder="Additional details about the item..."
             ></textarea>
           </div>
@@ -137,10 +161,14 @@
           </div>
 
           <div class="action-buttons">
-            <button type="submit" class="btn primary" data-translate="add-item">
-              ➕ Add Item
+            <button
+              type="submit"
+              class="btn primary"
+              data-translate="save-item"
+            >
+              Add Item
             </button>
-            <a href="/" class="btn" data-translate="cancel">❌ Cancel</a>
+            <a href="/" class="btn" data-translate="cancel">Cancel</a>
           </div>
         </form>
       </div>

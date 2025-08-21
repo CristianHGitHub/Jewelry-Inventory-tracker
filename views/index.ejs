@@ -3,66 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gold Jewelry Inventory Tracker</title>
+    <title data-translate="page-title-inventory">
+      Gold Jewelry Inventory Tracker
+    </title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1 data-translate="header-title">💎 Gold Jewelry Inventory Tracker</h1>
-        <p data-translate="header-subtitle">
-          Simple tracking for your jewelry business
-        </p>
+        <h1 data-translate="header-title">Gold Jewelry Inventory</h1>
         <div id="language-toggle"></div>
       </div>
 
       <!-- Summary Cards -->
       <div class="summary-cards">
         <div class="summary-card">
-          <h3>📦 Total Inventory</h3>
+          <h3 data-translate="inventory-value">Inventory</h3>
           <div class="summary-value"><%= inventory.length %></div>
-          <div class="summary-label">items</div>
+          <div class="summary-label" data-translate="summary-items">items</div>
         </div>
         <div class="summary-card">
-          <h3>💰 Inventory Value</h3>
+          <h3 data-translate="inventory-value">Value</h3>
           <div class="summary-value">
             $<%= (totalInventoryValue || 0).toFixed(2) %>
           </div>
-          <div class="summary-label">current market value</div>
-          <div
-            class="summary-note"
-            style="font-size: 0.8em; color: #7f8c8d; margin-top: 5px"
-          >
-            Based on current gold price: $<%= ((settings &&
-            settings.goldPricePerOunce ? settings.goldPricePerOunce : 3355.3) /
-            31.1035).toFixed(2) %>/gram
+          <div class="summary-label" data-translate="summary-market-value">
+            market value
           </div>
         </div>
         <div class="summary-card">
-          <h3>💸 Total Sales</h3>
+          <h3 data-translate="total-sales">Sales</h3>
           <div class="summary-value">$<%= totalSales.toFixed(2) %></div>
-          <div class="summary-label">revenue</div>
+          <div class="summary-label" data-translate="summary-revenue">
+            revenue
+          </div>
         </div>
         <div class="summary-card">
-          <h3>📈 Total Profit</h3>
+          <h3 data-translate="total-profit">Profit</h3>
           <div class="summary-value">$<%= totalProfit.toFixed(2) %></div>
-          <div class="summary-label">earned</div>
+          <div class="summary-label" data-translate="summary-earned">
+            earned
+          </div>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="action-buttons">
         <a href="/add-item" class="btn primary" data-translate="add-new-item"
-          >➕ Add New Item</a
+          >Add Item</a
         >
         <a href="/settings" class="btn secondary" data-translate="settings"
-          >⚙️ Settings</a
+          >Settings</a
         >
       </div>
 
       <!-- Inventory Section -->
       <div class="section">
-        <h2 data-translate="inventory-title">📦 Current Inventory</h2>
+        <h2 data-translate="current-inventory">Inventory</h2>
         <% if (inventory.length === 0) { %>
         <div class="empty-state">
           <p data-translate="no-inventory">No items in inventory yet.</p>
@@ -70,7 +67,7 @@
             href="/add-item"
             class="btn primary"
             data-translate="add-first-item"
-            >➕ Add Your First Item</a
+            >Add Your First Item</a
           >
         </div>
         <% } else { %>
@@ -184,29 +181,31 @@
 
       <!-- Gold Price Information -->
       <div class="section">
-        <h2>🏆 Current Gold Market Information</h2>
+        <h2 data-translate="gold-market">Gold Market</h2>
         <div
           class="summary-cards"
           style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"
         >
           <div class="summary-card">
-            <h3>Current Gold Price</h3>
+            <h3 data-translate="gold-price">Gold Price</h3>
             <div class="summary-value">
               $<%= (settings && settings.goldPricePerOunce ?
-              settings.goldPricePerOunce : 3355.3).toFixed(2) %>
+              settings.goldPricePerOunce : 3314.92).toFixed(2) %>
             </div>
-            <div class="summary-label">per troy ounce</div>
+            <div class="summary-label" data-translate="per-ounce">
+              per ounce
+            </div>
           </div>
           <div class="summary-card">
-            <h3>Price per Gram</h3>
+            <h3 data-translate="per-gram">Per Gram</h3>
             <div class="summary-value">
               $<%= ((settings && settings.goldPricePerOunce ?
-              settings.goldPricePerOunce : 3355.3) / 31.1035).toFixed(2) %>
+              settings.goldPricePerOunce : 3314.92) / 31.1035).toFixed(2) %>
             </div>
-            <div class="summary-label">pure 24K gold</div>
+            <div class="summary-label" data-translate="24k-gold">24K gold</div>
           </div>
           <div class="summary-card">
-            <h3>Last Updated</h3>
+            <h3 data-translate="updated">Updated</h3>
             <div class="summary-value">
               <%= settings && settings.lastUpdated ? new
               Date(settings.lastUpdated).toLocaleDateString() : new
@@ -217,47 +216,6 @@
               Date(settings.lastUpdated).toLocaleTimeString() : new
               Date().toLocaleTimeString() %>
             </div>
-          </div>
-        </div>
-
-        <!-- Karat Value Reference -->
-        <div class="summary-card" style="margin-top: 20px; text-align: left">
-          <h3>💡 Karat Value Reference (per gram)</h3>
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-              gap: 15px;
-              margin-top: 15px;
-            "
-          >
-            <% Object.keys(goldPurity).forEach(function(karat) { %>
-            <div
-              style="
-                text-align: center;
-                padding: 10px;
-                background: #f8f9fa;
-                border-radius: 8px;
-              "
-            >
-              <div style="font-weight: bold; color: #2c3e50"><%= karat %></div>
-              <div style="font-size: 0.9em; color: #7f8c8d">
-                <%= goldPurity[karat] %>% pure
-              </div>
-              <div style="font-size: 1.1em; color: #27ae60; font-weight: bold">
-                $<%= (((settings && settings.goldPricePerOunce ?
-                settings.goldPricePerOunce : 3355.3) / 31.1035) *
-                (goldPurity[karat] / 100) * dealerMarkup[karat]).toFixed(2) %>
-              </div>
-              <div style="font-size: 0.8em; color: #e74c3c">
-                Dealer pays <%= (dealerMarkup[karat] * 100).toFixed(0) %>%
-              </div>
-            </div>
-            <% }); %>
-          </div>
-          <div style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em">
-            <strong>Note:</strong> These are dealer buyback prices. Retail
-            prices are typically 20-40% higher.
           </div>
         </div>
       </div>

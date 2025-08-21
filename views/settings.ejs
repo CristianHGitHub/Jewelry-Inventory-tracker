@@ -3,96 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Settings - Jewelry Inventory Tracker</title>
+    <title data-translate="page-title-settings">
+      Settings - Jewelry Inventory Tracker
+    </title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1 data-translate="settings-title">⚙️ Settings</h1>
-        <p data-translate="settings-subtitle">
-          Configure your jewelry inventory tracking
-        </p>
+        <h1 data-translate="settings-title">Settings</h1>
       </div>
 
       <div class="nav-links">
-        <a href="/" data-translate="back-dashboard">🏠 Back to Dashboard</a>
+        <a href="/" data-translate="nav-dashboard">🏠 Dashboard</a>
       </div>
 
-      <div class="form-container">
-        <form action="/settings" method="POST">
-          <div class="form-group">
-            <label for="goldPricePerOunce" data-translate="current-gold-price"
-              >Current Gold Price (per troy ounce) *</label
-            >
-            <div style="display: flex; align-items: center; gap: 10px">
-              <span style="font-size: 1.2em; font-weight: bold">$</span>
-              <input
-                type="number"
-                id="goldPricePerOunce"
-                name="goldPricePerOunce"
-                step="0.01"
-                min="0.01"
-                value="<%= (settings && settings.goldPricePerOunce) || 3355.3 %>"
-                required
-                style="flex: 1"
-              />
-            </div>
-            <div
-              style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em"
-              data-translate="gold-price-tip"
-            >
-              💡 This is the current market price for pure 24K gold per troy
-              ounce
-            </div>
-          </div>
 
-          <div class="form-group">
-            <label for="autoUpdate">
-              <input type="checkbox" id="autoUpdate" name="autoUpdate" <%=
-              (settings && settings.autoUpdate) ? 'checked' : '' %>> Enable
-              automatic gold price updates
-            </label>
-            <div style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em">
-              🔄 When enabled, gold price will be updated automatically from
-              live market data
-            </div>
-          </div>
 
           <div class="summary-card" style="margin: 30px 0; text-align: left">
-            <h3>💰 Live Gold Price & Purity Calculations</h3>
+            <h3 data-translate="live-gold-price">Live Gold Price</h3>
             <div style="font-size: 1em; line-height: 1.8; margin-top: 15px">
-              <strong>Current Price:</strong> $<%= (settings &&
-              settings.goldPricePerOunce ? settings.goldPricePerOunce :
-              3355.3).toFixed(2) %> per troy ounce<br />
-              <strong>Price per Gram:</strong> $<%= ((settings &&
-              settings.goldPricePerOunce ? settings.goldPricePerOunce : 3355.3)
-              / 31.1035).toFixed(2) %> per gram<br />
-              <strong>Last Updated:</strong> <%= settings &&
+              <strong data-translate="current">Current:</strong> $<%= (settings
+              && settings.goldPricePerOunce ? settings.goldPricePerOunce :
+              3314.92).toFixed(2) %>
+              <span data-translate="per-ounce">per ounce</span><br />
+              <strong data-translate="per-gram">Per Gram:</strong> $<%=
+              ((settings && settings.goldPricePerOunce ?
+              settings.goldPricePerOunce : 3314.92) / 31.1035).toFixed(2) %><br />
+              <strong data-translate="updated">Updated:</strong> <%= settings &&
               settings.lastUpdated ? new
               Date(settings.lastUpdated).toLocaleString() : new
-              Date().toLocaleString() %><br />
-              <strong>Source:</strong> Live market data from multiple APIs<br />
-              <strong>Update Frequency:</strong> Real-time when you click
-              "Update Price"
+              Date().toLocaleString() %>
             </div>
-            <div style="margin-top: 20px">
-              <button
-                type="button"
-                onclick="fetchLiveGoldPrice()"
-                class="btn secondary"
-                style="margin-right: 10px"
-              >
-                🔄 Fetch Live Price
-              </button>
-              <button
-                type="button"
-                onclick="updateGoldPrice()"
-                class="btn primary"
-              >
-                💾 Update to Live Price
-              </button>
-            </div>
+
             <div
               id="price-status"
               style="margin-top: 15px; display: none"
@@ -100,7 +43,9 @@
           </div>
 
           <div class="summary-card" style="margin: 30px 0; text-align: left">
-            <h3>🏆 Gold Purity Standards & Dealer Pricing</h3>
+            <h3 data-translate="gold-purity-standards">
+              Gold Purity Standards
+            </h3>
             <div style="font-size: 0.9em; line-height: 1.6; margin-top: 15px">
               <table
                 style="width: 100%; border-collapse: collapse; margin-top: 15px"
@@ -146,16 +91,7 @@
                         border: 1px solid #dee2e6;
                       "
                     >
-                      Markup
-                    </th>
-                    <th
-                      style="
-                        padding: 12px;
-                        text-align: left;
-                        border: 1px solid #dee2e6;
-                      "
-                    >
-                      Example: 1g Value
+                      1g Value
                     </th>
                   </tr>
                 </thead>
@@ -178,11 +114,8 @@
                       <%= (dealerMarkup[karat] * 100).toFixed(0) %>%
                     </td>
                     <td style="padding: 12px; border: 1px solid #dee2e6">
-                      <%= ((1 - dealerMarkup[karat]) * 100).toFixed(0) %>%
-                    </td>
-                    <td style="padding: 12px; border: 1px solid #dee2e6">
                       $<%= (((settings && settings.goldPricePerOunce ?
-                      settings.goldPricePerOunce : 3355.3) / 31.1035) *
+                      settings.goldPricePerOunce : 3314.92) / 31.1035) *
                       (goldPurity[karat] / 100) *
                       dealerMarkup[karat]).toFixed(2) %>
                     </td>
@@ -191,59 +124,33 @@
                 </tbody>
               </table>
             </div>
-            <div style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em">
-              <strong>💡 How it works:</strong> Dealers pay a percentage of the
-              market value based on purity. 14K gold (58.3% pure) gets 75% of
-              market value, while 24K gold (99.9% pure) gets 90% of market
-              value.
-            </div>
           </div>
 
-          <div class="summary-card" style="margin: 30px 0; text-align: left">
-            <h3>🔒 Privacy & Security</h3>
-            <div style="font-size: 1em; line-height: 1.8; margin-top: 15px">
-              <strong>🔐 Encryption:</strong> All your data is encrypted using
-              AES-256-GCM encryption.<br />
-              <strong>💻 Local Storage:</strong> Data is stored only on your
-              computer, never sent to external servers.<br />
-              <strong>🔑 Machine-Specific:</strong> Encryption keys are unique
-              to your computer.<br />
-              <strong>📁 Automatic Backups:</strong> Encrypted backups are
-              created automatically.<br />
-              <strong>🚫 GitHub Safe:</strong> Real data is never uploaded to
-              GitHub - only example data is shared.
-            </div>
-          </div>
 
-          <div class="action-buttons">
-            <button
-              type="submit"
-              class="btn primary"
-              data-translate="save-settings"
-            >
-              💾 Save Settings
-            </button>
-            <a href="/" class="btn" data-translate="cancel">❌ Cancel</a>
-          </div>
         </form>
       </div>
 
       <!-- Data Management Section -->
       <div class="form-container" style="margin-top: 30px">
-        <h3>📊 Data Management</h3>
+        <h3 data-translate="data-management">Data Management</h3>
 
         <div
           class="action-buttons"
           style="justify-content: flex-start; gap: 15px"
         >
-          <button onclick="createBackup()" class="btn secondary">
-            💾 Create Backup
+          <button
+            onclick="createBackup()"
+            class="btn secondary"
+            data-translate="create-backup"
+          >
+            Create Backup
           </button>
-          <button onclick="exportData()" class="btn secondary">
-            📤 Export Data
-          </button>
-          <button onclick="showWipeDataDialog()" class="btn danger">
-            🗑️ Wipe All Data
+          <button
+            onclick="showWipeDataDialog()"
+            class="btn danger"
+            data-translate="wipe-all-data"
+          >
+            Wipe All Data
           </button>
         </div>
 
@@ -287,128 +194,57 @@
         </p>
         <p style="margin: 20px 0; font-weight: bold; color: #e74c3c">
           Type exactly:
-          <strong>I UNDERSTAND THIS WILL DELETE ALL DATA PERMANENTLY</strong>
+          <strong>DELETE ALL DATA</strong>
         </p>
         <input
           type="text"
           id="wipe-confirmation"
-          placeholder="Type the confirmation text..."
+          placeholder="Type: DELETE ALL DATA"
           style="
             width: 100%;
             padding: 15px;
             border: 2px solid #ddd;
             border-radius: 8px;
+            font-size: 16px;
             margin: 20px 0;
           "
         />
-        <div style="margin-top: 20px">
+        <div style="display: flex; gap: 15px; justify-content: center">
           <button
-            onclick="wipeAllData()"
+            onclick="confirmWipeData()"
             class="btn danger"
-            id="wipe-button"
-            disabled
+            style="min-width: 120px"
           >
-            🗑️ Wipe All Data
+            Confirm Delete
           </button>
-          <button onclick="hideWipeDataDialog()" class="btn">❌ Cancel</button>
+          <button
+            onclick="hideWipeDataDialog()"
+            class="btn"
+            style="min-width: 120px"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
 
     <script src="/js/language.js"></script>
     <script>
-      // Enable/disable wipe button based on confirmation text
-      document
-        .getElementById("wipe-confirmation")
-        .addEventListener("input", function () {
-          const confirmationText =
-            "I UNDERSTAND THIS WILL DELETE ALL DATA PERMANENTLY";
-          const wipeButton = document.getElementById("wipe-button");
-          wipeButton.disabled = this.value !== confirmationText;
-        });
 
-      function showWipeDataDialog() {
-        document.getElementById("wipe-dialog").style.display = "block";
-      }
 
-      function hideWipeDataDialog() {
-        document.getElementById("wipe-dialog").style.display = "none";
-        document.getElementById("wipe-confirmation").value = "";
-        document.getElementById("wipe-button").disabled = true;
-      }
-
-      // Fetch live gold price from API
-      function fetchLiveGoldPrice() {
-        const statusDiv = document.getElementById("price-status");
+      function createBackup() {
+        const statusDiv = document.getElementById("backup-status");
         statusDiv.innerHTML =
-          '<div class="message">🔄 Fetching live gold price...</div>';
+          '<div class="message">🔄 Creating backup...</div>';
         statusDiv.style.display = "block";
 
-        fetch("/api/gold-price")
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              let statusHTML = `<div class="message success">✅ Live gold price: $${data.pricePerOunce.toFixed(
-                2
-              )} per troy ounce<br>`;
-              statusHTML += `Price per gram: $${data.pricePerGram.toFixed(
-                2
-              )}<br>`;
-              statusHTML += `Timestamp: ${new Date(
-                data.timestamp
-              ).toLocaleString()}<br><br>`;
-              statusHTML += `<strong>Karat Values (per gram):</strong><br>`;
-
-              Object.keys(data.karatValues).forEach((karat) => {
-                const karatData = data.karatValues[karat];
-                statusHTML += `${karat}: $${karatData.dealerValuePerGram.toFixed(
-                  2
-                )} (${
-                  karatData.purity
-                }% pure, ${karatData.markupPercentage.toFixed(0)}% markup)<br>`;
-              });
-
-              statusHTML += "</div>";
-              statusDiv.innerHTML = statusHTML;
-            } else {
-              statusDiv.innerHTML = `<div class="message error">❌ Error: ${data.message}</div>`;
-            }
-          })
-          .catch((error) => {
-            statusDiv.innerHTML = `<div class="message error">❌ Network error: ${error.message}</div>`;
-          });
-      }
-
-      // Update gold price to live price
-      function updateGoldPrice() {
-        const statusDiv = document.getElementById("price-status");
-        statusDiv.innerHTML =
-          '<div class="message">🔄 Updating to live gold price...</div>';
-        statusDiv.style.display = "block";
-
-        fetch("/api/update-gold-price", {
+        fetch("/api/backup", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
         })
           .then((response) => response.json())
           .then((data) => {
             if (data.success) {
-              statusDiv.innerHTML = `<div class="message success">✅ Gold price updated to: $${data.newPricePerOunce.toFixed(
-                2
-              )} per troy ounce<br>Price per gram: $${data.newPricePerGram.toFixed(
-                2
-              )}<br>Your inventory values will now reflect the current market price!</div>`;
-
-              // Update the input field
-              document.getElementById("goldPricePerOunce").value =
-                data.newPricePerOunce.toFixed(2);
-
-              // Reload page after 2 seconds to show updated values
-              setTimeout(() => {
-                location.reload();
-              }, 2000);
+              statusDiv.innerHTML = `<div class="message success">✅ Backup created successfully!<br>File: ${data.filename}</div>`;
             } else {
               statusDiv.innerHTML = `<div class="message error">❌ Error: ${data.error}</div>`;
             }
@@ -418,81 +254,48 @@
           });
       }
 
-      function createBackup() {
-        fetch("/api/backup")
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              document.getElementById("backup-status").innerHTML =
-                '<div class="message success">✅ Backup created successfully!</div>';
-              document.getElementById("backup-status").style.display = "block";
-              setTimeout(() => {
-                document.getElementById("backup-status").style.display = "none";
-              }, 3000);
-            }
-          })
-          .catch((error) => {
-            document.getElementById("backup-status").innerHTML =
-              '<div class="message error">❌ Error creating backup</div>';
-            document.getElementById("backup-status").style.display = "block";
-          });
+
+
+      function showWipeDataDialog() {
+        document.getElementById("wipe-dialog").style.display = "block";
       }
 
-      function exportData() {
-        window.location.href = "/api/export";
+      function hideWipeDataDialog() {
+        document.getElementById("wipe-dialog").style.display = "none";
+        document.getElementById("wipe-confirmation").value = "";
       }
 
-      function wipeAllData() {
+      function confirmWipeData() {
         const confirmation = document.getElementById("wipe-confirmation").value;
+        const expectedText = "DELETE ALL DATA";
 
-        fetch("/api/wipe-data", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ confirm: confirmation }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              alert(
-                "All data has been permanently deleted. The page will reload."
-              );
-              location.reload();
-            } else {
-              alert("Error: " + data.error);
-            }
+        if (confirmation === expectedText) {
+          fetch("/api/wipe-data", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ confirm: expectedText }),
           })
-          .catch((error) => {
-            alert("Error wiping data: " + error);
-          });
-      }
-
-      document.querySelector("form").addEventListener("submit", function (e) {
-        const goldPrice = parseFloat(
-          document.getElementById("goldPricePerOunce").value
-        );
-        if (goldPrice <= 0) {
-          const errorMessage =
-            LanguageManager.currentLanguage === "es"
-              ? LanguageManager.translations.es["invalid-gold-price"]
-              : LanguageManager.translations.en["invalid-gold-price"];
-          alert(errorMessage);
-          e.preventDefault();
-          return;
-        }
-
-        const confirmMessage =
-          LanguageManager.currentLanguage === "es"
-            ? LanguageManager.translations.es["settings-confirm"]
-            : LanguageManager.translations.en["settings-confirm"];
-
-        if (confirm(confirmMessage)) {
-          return true;
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                alert("All data has been wiped. Redirecting to dashboard...");
+                window.location.href = "/";
+              } else {
+                alert("Error wiping data: " + data.error);
+              }
+            })
+            .catch((error) => {
+              alert("Network error: " + error.message);
+            });
         } else {
-          e.preventDefault();
+          alert(
+            "Confirmation text does not match. Please type exactly: " +
+              expectedText
+          );
         }
-      });
+      }
     </script>
   </body>
 </html>

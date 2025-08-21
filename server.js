@@ -23,8 +23,15 @@ const INVENTORY_FILE = "inventory";
 const SALES_FILE = "sales";
 const SETTINGS_FILE = "settings";
 
-// Gold price API configuration - using multiple reliable sources
+// Gold price API configuration - using MetalpriceAPI as primary source
 const GOLD_API_SOURCES = [
+  {
+    name: "MetalpriceAPI",
+    url: "https://api.metalpriceapi.com/v1/latest?api_key=YOUR_API_KEY_HERE&base=XAU&currencies=USD",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  },
   {
     name: "GoldAPI",
     url: "https://www.goldapi.io/api/XAU/USD",
@@ -42,6 +49,13 @@ const GOLD_API_SOURCES = [
     },
   },
 ];
+
+// API rate limiting and testing configuration
+const API_CONFIG = {
+  enabled: false, // Set to false to disable API calls during testing
+  maxDailyCalls: 2, // Maximum API calls per day
+  testMode: true, // Use fallback prices instead of API calls
+};
 
 // Gold purity standards (percentage of pure gold)
 const GOLD_PURITY = {
@@ -66,6 +80,30 @@ const DEALER_MARKUP = {
 // Function to fetch current gold price from multiple API sources
 async function fetchCurrentGoldPrice() {
   return new Promise((resolve, reject) => {
+    // Check if API is enabled and daily limit not exceeded
+    if (!API_CONFIG.enabled) {
+      console.log("API disabled - using fallback price");
+      const fallbackPricePerOunce = 3314.92;
+      resolve(fallbackPricePerOunce);
+      return;
+    }
+
+    // Check daily API call limit
+    const today = new Date().toDateString();
+    const apiCallCount = getDailyAPICallCount(today);
+
+    if (apiCallCount >= API_CONFIG.maxDailyCalls) {
+      console.log(
+        `Daily API limit reached (${apiCallCount}/${API_CONFIG.maxDailyCalls}) - using fallback price`
+      );
+      const fallbackPricePerOunce = 3314.92;
+      resolve(fallbackPricePerOunce);
+      return;
+    }
+
+    // Increment API call count
+    incrementDailyAPICallCount(today);
+
     // Try multiple API sources for reliability
     let currentSourceIndex = 0;
 
@@ -73,7 +111,7 @@ async function fetchCurrentGoldPrice() {
       if (currentSourceIndex >= GOLD_API_SOURCES.length) {
         // If all APIs fail, use a fallback price based on current market
         console.log("All APIs failed, using fallback gold price");
-        const fallbackPricePerOunce = 3355.3; // Current market price as fallback
+        const fallbackPricePerOunce = 3314.92; // Current market price as fallback (from MetalpriceAPI)
         resolve(fallbackPricePerOunce);
         return;
       }
@@ -115,7 +153,17 @@ async function fetchCurrentGoldPrice() {
             let goldPricePerOunce = null;
 
             // Parse different API response formats
-            if (source.name === "GoldAPI") {
+            if (source.name === "MetalpriceAPI") {
+              const goldData = JSON.parse(data);
+              if (
+                goldData &&
+                goldData.success &&
+                goldData.rates &&
+                goldData.rates.USD
+              ) {
+                goldPricePerOunce = goldData.rates.USD;
+              }
+            } else if (source.name === "GoldAPI") {
               const goldData = JSON.parse(data);
               if (goldData && goldData.price_usd) {
                 goldPricePerOunce = goldData.price_usd;
@@ -220,6 +268,27 @@ function getDealerMarkup(purityPercentage) {
   }
 
   return DEALER_MARKUP[closestKarat];
+}
+
+// API call tracking functions
+function getDailyAPICallCount(date) {
+  try {
+    const apiStats = readEncryptedData("api_stats") || {};
+    return apiStats[date] || 0;
+  } catch (error) {
+    console.error("Error reading API stats:", error);
+    return 0;
+  }
+}
+
+function incrementDailyAPICallCount(date) {
+  try {
+    const apiStats = readEncryptedData("api_stats") || {};
+    apiStats[date] = (apiStats[date] || 0) + 1;
+    writeEncryptedData("api_stats", apiStats);
+  } catch (error) {
+    console.error("Error updating API stats:", error);
+  }
 }
 
 // Function to get purity percentage from karat
@@ -518,35 +587,26 @@ app.post("/settings", (req, res) => {
 app.get("/api/gold-price", async (req, res) => {
   try {
     const currentPricePerOunce = await fetchCurrentGoldPrice();
-    const settings = readEncryptedData(SETTINGS_FILE);
-
-    // Calculate values for different karats
-    const karatValues = {};
-    Object.keys(GOLD_PURITY).forEach((karat) => {
-      const purity = GOLD_PURITY[karat];
-      const oneGramValue = calculateGoldValue(1, purity, currentPricePerOunce);
-      karatValues[karat] = {
-        purity: purity,
-        pricePerGram: oneGramValue.goldPricePerGram,
-        marketValuePerGram: oneGramValue.marketValue,
-        dealerValuePerGram: oneGramValue.dealerValue,
-        markupPercentage: oneGramValue.markupPercentage,
-      };
-    });
+    const today = new Date().toDateString();
+    const apiCallCount = getDailyAPICallCount(today);
 
     res.json({
       success: true,
       pricePerOunce: currentPricePerOunce,
       pricePerGram: currentPricePerOunce / 31.1035,
-      karatValues: karatValues,
       timestamp: new Date().toISOString(),
+      apiStatus: {
+        enabled: API_CONFIG.enabled,
+        dailyCalls: apiCallCount,
+        maxDailyCalls: API_CONFIG.maxDailyCalls,
+        testMode: API_CONFIG.testMode,
+      },
     });
   } catch (error) {
     console.error("Error fetching gold price:", error);
     res.status(500).json({
       success: false,
       error: error.message,
-      message: "Failed to fetch current gold price",
     });
   }
 });
@@ -578,7 +638,6 @@ app.post("/api/update-gold-price", async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message,
-      message: "Failed to update gold price",
     });
   }
 });
@@ -656,9 +715,9 @@ app.get("/api/backup", (req, res) => {
 app.post("/api/wipe-data", (req, res) => {
   try {
     const { confirm } = req.body;
-    if (confirm !== "I UNDERSTAND THIS WILL DELETE ALL DATA PERMANENTLY") {
+    if (confirm !== "DELETE ALL DATA") {
       return res
-        .status(400)
+        .status(500)
         .json({ success: false, error: "Confirmation text does not match" });
     }
 
