@@ -196,6 +196,23 @@ const LanguageManager = {
 
       // Language Toggle
       "language-toggle": "SPA/ENG",
+
+      // Sorting
+      "sort-by": "Sort by:",
+      "inventory-number-low-high": "📋 Inventory Number (Low→High)",
+      "inventory-number-high-low": "📋 Inventory Number (High→Low)",
+      "weight-low-high": "⚖️ Weight (Low→High)",
+      "weight-high-low": "⚖️ Weight (High→Low)",
+      "karat-low-high": "💎 Karat (Low→High)",
+      "karat-high-low": "💎 Karat (High→Low)",
+      "cost-low-high": "💰 Cost (Low→High)",
+      "cost-high-low": "💰 Cost (High→Low)",
+      "market-value-low-high": "📈 Market Value (Low→High)",
+      "market-value-high-low": "📈 Market Value (High→Low)",
+      "dealer-value-low-high": "🏪 Dealer Value (Low→High)",
+      "dealer-value-high-low": "🏪 Dealer Value (High→Low)",
+      "sale-price-low-high": "💵 Sale Price (Low→High)",
+      "sale-price-high-low": "💵 Sale Price (High→Low)",
     },
 
     es: {
@@ -396,6 +413,23 @@ const LanguageManager = {
 
       // Language Toggle
       "language-toggle": "ENG/SPA",
+
+      // Sorting
+      "sort-by": "Ordenar por:",
+      "inventory-number-low-high": "📋 Número de Inventario (Bajo→Alto)",
+      "inventory-number-high-low": "📋 Número de Inventario (Alto→Bajo)",
+      "weight-low-high": "⚖️ Peso (Bajo→Alto)",
+      "weight-high-low": "⚖️ Peso (Alto→Bajo)",
+      "karat-low-high": "💎 Quilate (Bajo→Alto)",
+      "karat-high-low": "💎 Quilate (Alto→Bajo)",
+      "cost-low-high": "💰 Costo (Bajo→Alto)",
+      "cost-high-low": "💰 Costo (Alto→Bajo)",
+      "market-value-low-high": "📈 Valor de Mercado (Bajo→Alto)",
+      "market-value-high-low": "📈 Valor de Mercado (Alto→Bajo)",
+      "dealer-value-low-high": "🏪 Valor del Comerciante (Bajo→Alto)",
+      "dealer-value-high-low": "🏪 Valor del Comerciante (Alto→Bajo)",
+      "sale-price-low-high": "💵 Precio de Venta (Bajo→Alto)",
+      "sale-price-high-low": "💵 Precio de Venta (Alto→Bajo)",
     },
   },
 
@@ -461,8 +495,9 @@ const LanguageManager = {
     this.updateDynamicText();
   },
 
-  // Update select options for jewelry types
+  // Update select options for jewelry types and sorting dropdowns
   updateSelectOptions() {
+    // Update jewelry type select
     const typeSelect = document.getElementById("type");
     if (typeSelect) {
       const options = typeSelect.querySelectorAll("option");
@@ -474,9 +509,34 @@ const LanguageManager = {
       });
     }
 
+    // Update purity select
     const puritySelect = document.getElementById("purity");
     if (puritySelect) {
       const options = puritySelect.querySelectorAll("option");
+      options.forEach((option) => {
+        const key = option.getAttribute("data-translate");
+        if (key && this.translations[this.currentLanguage][key]) {
+          option.textContent = this.translations[this.currentLanguage][key];
+        }
+      });
+    }
+
+    // Update inventory sorting dropdown
+    const inventorySortSelect = document.getElementById("sortSelect");
+    if (inventorySortSelect) {
+      const options = inventorySortSelect.querySelectorAll("option");
+      options.forEach((option) => {
+        const key = option.getAttribute("data-translate");
+        if (key && this.translations[this.currentLanguage][key]) {
+          option.textContent = this.translations[this.currentLanguage][key];
+        }
+      });
+    }
+
+    // Update sales sorting dropdown
+    const salesSortSelect = document.getElementById("salesSortSelect");
+    if (salesSortSelect) {
+      const options = salesSortSelect.querySelectorAll("option");
       options.forEach((option) => {
         const key = option.getAttribute("data-translate");
         if (key && this.translations[this.currentLanguage][key]) {

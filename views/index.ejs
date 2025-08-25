@@ -73,44 +73,64 @@
         <% } else { %>
         <div class="table-container">
           <!-- Inventory Sorting Controls -->
-          <div
-            class="sorting-controls"
-            style="margin-bottom: 15px; text-align: right"
-          >
-            <span style="margin-right: 10px; color: #666">Sort by:</span>
-            <button
-              onclick="sortInventory('inventory-number')"
-              class="btn small secondary"
-            >
-              Inventory Number
-            </button>
-            <button
-              onclick="sortInventory('weight')"
-              class="btn small secondary"
-            >
-              Weight
-            </button>
-            <button
-              onclick="sortInventory('karat')"
-              class="btn small secondary"
-            >
-              Karat
-            </button>
-            <button onclick="sortInventory('cost')" class="btn small secondary">
-              Cost
-            </button>
-            <button
-              onclick="sortInventory('market-value')"
-              class="btn small secondary"
-            >
-              Market Value
-            </button>
-            <button
-              onclick="sortInventory('dealer-value')"
-              class="btn small secondary"
-            >
-              Dealer Value
-            </button>
+          <div class="sorting-controls">
+            <label for="sortSelect" data-translate="sort-by">Sort by:</label>
+            <select id="sortSelect" onchange="sortInventory(this.value)">
+              <option
+                value="inventory-number-asc"
+                data-translate="inventory-number-low-high"
+              >
+                📋 Inventory Number (Low→High)
+              </option>
+              <option
+                value="inventory-number-desc"
+                data-translate="inventory-number-high-low"
+              >
+                📋 Inventory Number (High→Low)
+              </option>
+              <option value="weight-asc" data-translate="weight-low-high">
+                ⚖️ Weight (Low→High)
+              </option>
+              <option value="weight-desc" data-translate="weight-high-low">
+                ⚖️ Weight (High→Low)
+              </option>
+              <option value="karat-asc" data-translate="karat-low-high">
+                💎 Karat (Low→High)
+              </option>
+              <option value="karat-desc" data-translate="karat-high-low">
+                💎 Karat (High→Low)
+              </option>
+              <option value="cost-asc" data-translate="cost-low-high">
+                💰 Cost (Low→High)
+              </option>
+              <option value="cost-desc" data-translate="cost-high-low">
+                💰 Cost (High→Low)
+              </option>
+              <option
+                value="market-value-asc"
+                data-translate="market-value-low-high"
+              >
+                📈 Market Value (Low→High)
+              </option>
+              <option
+                value="market-value-desc"
+                data-translate="market-value-high-low"
+              >
+                📈 Market Value (High→Low)
+              </option>
+              <option
+                value="dealer-value-asc"
+                data-translate="dealer-value-low-high"
+              >
+                🏪 Dealer Value (Low→High)
+              </option>
+              <option
+                value="dealer-value-desc"
+                data-translate="dealer-value-high-low"
+              >
+                🏪 Dealer Value (High→Low)
+              </option>
+            </select>
           </div>
 
           <table class="inventory-table" id="inventoryTable">
@@ -180,35 +200,56 @@
         <% } else { %>
         <div class="table-container">
           <!-- Sales Sorting Controls -->
-          <div
-            class="sorting-controls"
-            style="margin-bottom: 15px; text-align: right"
-          >
-            <span style="margin-right: 10px; color: #666">Sort by:</span>
-            <button
-              onclick="sortSales('inventory-number')"
-              class="btn small secondary"
+          <div class="sorting-controls">
+            <label for="salesSortSelect" data-translate="sort-by"
+              >Sort by:</label
             >
-              Inventory Number
-            </button>
-            <button onclick="sortSales('weight')" class="btn small secondary">
-              Weight
-            </button>
-            <button onclick="sortSales('karat')" class="btn small secondary">
-              Karat
-            </button>
-            <button onclick="sortSales('cost')" class="btn small secondary">
-              Cost
-            </button>
-            <button onclick="sortSales('price')" class="btn small secondary">
-              Sale Price
-            </button>
-            <button onclick="sortSales('profit')" class="btn small secondary">
-              Profit
-            </button>
-            <button onclick="sortSales('date')" class="btn small secondary">
-              Date
-            </button>
+            <select id="salesSortSelect" onchange="sortSales(this.value)">
+              <option
+                value="inventory-number-asc"
+                data-translate="inventory-number-low-high"
+              >
+                📋 Inventory Number (Low→High)
+              </option>
+              <option
+                value="inventory-number-desc"
+                data-translate="inventory-number-high-low"
+              >
+                📋 Inventory Number (High→Low)
+              </option>
+              <option value="weight-asc" data-translate="weight-low-high">
+                ⚖️ Weight (Low→High)
+              </option>
+              <option value="weight-desc" data-translate="weight-high-low">
+                ⚖️ Weight (High→Low)
+              </option>
+              <option value="karat-asc" data-translate="karat-low-high">
+                💎 Karat (Low→High)
+              </option>
+              <option value="karat-desc" data-translate="karat-high-low">
+                💎 Karat (High→Low)
+              </option>
+              <option value="cost-asc" data-translate="cost-low-high">
+                💰 Cost (Low→High)
+              </option>
+              <option value="cost-desc" data-translate="cost-high-low">
+                💰 Cost (High→Low)
+              </option>
+              <option value="price-asc" data-translate="sale-price-low-high">
+                💵 Sale Price (Low→High)
+              </option>
+              <option value="price-desc" data-translate="sale-price-high-low">
+                💵 Sale Price (High→Low)
+              </option>
+              <option value="profit-asc" data-translate="profit">
+                📈 Profit (Low→High)
+              </option>
+              <option value="profit-desc" data-translate="profit">
+                📈 Profit (High→Low)
+              </option>
+              <option value="date-asc">📅 Date (Old→New)</option>
+              <option value="date-desc">📅 Date (New→Old)</option>
+            </select>
           </div>
 
           <table class="sales-table" id="salesTable">
@@ -271,7 +312,7 @@
             <h3 data-translate="per-gram">Per Gram</h3>
             <div class="summary-value">
               $<%= ((settings && settings.goldPricePerOunce ?
-              settings.goldPricePerOunce : 3314.92) / 31.1035).toFixed(2) %>
+              settings.goldPricePerOunce : 3314.92) / 31.1034768).toFixed(2) %>
             </div>
             <div class="summary-label" data-translate="24k-gold">24K gold</div>
           </div>
@@ -350,26 +391,35 @@
         const tbody = table.querySelector("tbody");
         const rows = Array.from(tbody.querySelectorAll("tr"));
 
+        // Determine sort direction and base column
+        const isDescending = column.includes("-desc");
+        const baseColumn = column.replace("-asc", "").replace("-desc", "");
+
         rows.sort((a, b) => {
           let aValue, bValue;
+          let comparison = 0;
 
-          switch (column) {
+          switch (baseColumn) {
             case "inventory-number":
-              aValue = a.cells[0].textContent;
-              bValue = b.cells[0].textContent;
-              return aValue.localeCompare(bValue);
+              aValue = parseInt(a.cells[0].textContent) || 0;
+              bValue = parseInt(b.cells[0].textContent) || 0;
+              comparison = aValue - bValue;
+              break;
             case "weight":
               aValue = parseFloat(a.cells[2].textContent);
               bValue = parseFloat(b.cells[2].textContent);
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             case "karat":
               aValue = a.cells[4].textContent;
               bValue = b.cells[4].textContent;
-              return aValue.localeCompare(bValue);
+              comparison = aValue.localeCompare(bValue);
+              break;
             case "cost":
               aValue = parseFloat(a.cells[5].textContent.replace("$", ""));
               bValue = parseFloat(b.cells[5].textContent.replace("$", ""));
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             case "market-value":
               aValue =
                 a.cells[6].textContent === "N/A"
@@ -379,7 +429,8 @@
                 b.cells[6].textContent === "N/A"
                   ? 0
                   : parseFloat(b.cells[6].textContent.replace("$", ""));
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             case "dealer-value":
               aValue =
                 a.cells[7].textContent === "N/A"
@@ -389,10 +440,14 @@
                 b.cells[7].textContent === "N/A"
                   ? 0
                   : parseFloat(b.cells[7].textContent.replace("$", ""));
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             default:
               return 0;
           }
+
+          // Apply sort direction
+          return isDescending ? -comparison : comparison;
         });
 
         // Clear and re-append sorted rows
@@ -405,41 +460,56 @@
         const tbody = table.querySelector("tbody");
         const rows = Array.from(tbody.querySelectorAll("tr"));
 
+        // Determine sort direction and base column
+        const isDescending = column.includes("-desc");
+        const baseColumn = column.replace("-asc", "").replace("-desc", "");
+
         rows.sort((a, b) => {
           let aValue, bValue;
+          let comparison = 0;
 
-          switch (column) {
+          switch (baseColumn) {
             case "inventory-number":
-              aValue = a.cells[0].textContent;
-              bValue = b.cells[0].textContent;
-              return aValue.localeCompare(bValue);
+              aValue = parseInt(a.cells[0].textContent) || 0;
+              bValue = parseInt(b.cells[0].textContent) || 0;
+              comparison = aValue - bValue;
+              break;
             case "weight":
               aValue = parseFloat(a.cells[1].textContent);
               bValue = parseFloat(b.cells[1].textContent);
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             case "karat":
               aValue = a.cells[3].textContent;
               bValue = b.cells[3].textContent;
-              return aValue.localeCompare(bValue);
+              comparison = aValue.localeCompare(bValue);
+              break;
             case "cost":
               aValue = parseFloat(a.cells[4].textContent.replace("$", ""));
               bValue = parseFloat(b.cells[4].textContent.replace("$", ""));
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             case "price":
               aValue = parseFloat(a.cells[5].textContent.replace("$", ""));
               bValue = parseFloat(b.cells[5].textContent.replace("$", ""));
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             case "profit":
               aValue = parseFloat(a.cells[6].textContent.replace("$", ""));
               bValue = parseFloat(b.cells[6].textContent.replace("$", ""));
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             case "date":
               aValue = new Date(a.cells[7].textContent);
               bValue = new Date(b.cells[7].textContent);
-              return aValue - bValue;
+              comparison = aValue - bValue;
+              break;
             default:
               return 0;
           }
+
+          // Apply sort direction
+          return isDescending ? -comparison : comparison;
         });
 
         // Clear and re-append sorted rows

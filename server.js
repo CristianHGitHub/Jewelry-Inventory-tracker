@@ -5,6 +5,17 @@ const path = require("path");
 const DataEncryption = require("./utils/encryption");
 const https = require("https");
 
+/*
+ * 🚨 API TEMPORARILY DISABLED 🚨
+ *
+ * To re-enable the MetalpriceAPI functionality:
+ * 1. Change GOLD_API_CONFIG.enabled from false to true
+ * 2. Uncomment the setInterval and setTimeout lines in the server startup section
+ * 3. Restart the server
+ *
+ * This prevents API calls while testing the webpage.
+ */
+
 const app = express();
 const PORT = 3000;
 
@@ -23,65 +34,47 @@ const INVENTORY_FILE = "inventory";
 const SALES_FILE = "sales";
 const SETTINGS_FILE = "settings";
 
-// Gold price API configuration - using MetalpriceAPI as primary source
-const GOLD_API_SOURCES = [
-  {
-    name: "MetalpriceAPI",
-    url: "https://api.metalpriceapi.com/v1/latest?api_key=YOUR_API_KEY_HERE&base=XAU&currencies=USD",
-    headers: {
-      "Content-Type": "application/json",
-    },
+// Gold price API configuration - using MetalpriceAPI as specified
+const GOLD_API_CONFIG = {
+  url: "https://api.metalpriceapi.com/v1/latest?api_key=04fe01be73eeb6f2339d6decb507f5f1&base=USD&currencies=EUR,XAU,XAG",
+  headers: {
+    "Content-Type": "application/json",
   },
-  {
-    name: "GoldAPI",
-    url: "https://www.goldapi.io/api/XAU/USD",
-    headers: {
-      "x-access-token": "goldapi-1234567890abcdef",
-      "Content-Type": "application/json",
-    },
-  },
-  {
-    name: "MetalsAPI",
-    url: "https://api.metals.live/v1/spot/gold",
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    },
-  },
-];
-
-// API rate limiting and testing configuration
-const API_CONFIG = {
-  enabled: false, // Set to false to disable API calls during testing
-  maxDailyCalls: 2, // Maximum API calls per day
-  testMode: true, // Use fallback prices instead of API calls
+  enabled: false, // TEMPORARILY DISABLED - Set to true to re-enable API calls
+  maxDailyCalls: 1, // Maximum 1 API call per day for gold price updates
 };
 
 // Gold purity standards (percentage of pure gold)
 const GOLD_PURITY = {
   "9K": 37.5, // 9K = 37.5% pure gold
   "10K": 41.7, // 10K = 41.7% pure gold
+  "12K": 50.0, // 12K = 50.0% pure gold
   "14K": 58.3, // 14K = 58.3% pure gold
+  "16K": 66.7, // 16K = 66.7% pure gold
   "18K": 75.0, // 18K = 75.0% pure gold
+  "21K": 87.5, // 21K = 87.5% pure gold
   "22K": 91.7, // 22K = 91.7% pure gold
   "24K": 99.9, // 24K = 99.9% pure gold
 };
 
-// Dealer markup factors (what dealers actually pay vs. market price)
+// Dealer markup factors (what dealers actually pay vs. market value)
 const DEALER_MARKUP = {
   "9K": 0.65, // Dealers pay ~65% of market value for 9K
   "10K": 0.7, // Dealers pay ~70% of market value for 10K
+  "12K": 0.72, // Dealers pay ~72% of market value for 12K
   "14K": 0.75, // Dealers pay ~75% of market value for 14K
+  "16K": 0.77, // Dealers pay ~77% of market value for 16K
   "18K": 0.8, // Dealers pay ~80% of market value for 18K
+  "21K": 0.83, // Dealers pay ~83% of market value for 21K
   "22K": 0.85, // Dealers pay ~85% of market value for 22K
   "24K": 0.9, // Dealers pay ~90% of market value for 24K
 };
 
-// Function to fetch current gold price from multiple API sources
+// Function to fetch current gold price from MetalpriceAPI
 async function fetchCurrentGoldPrice() {
   return new Promise((resolve, reject) => {
     // Check if API is enabled and daily limit not exceeded
-    if (!API_CONFIG.enabled) {
+    if (!GOLD_API_CONFIG.enabled) {
       console.log("API disabled - using fallback price");
       const fallbackPricePerOunce = 3314.92;
       resolve(fallbackPricePerOunce);
@@ -92,9 +85,9 @@ async function fetchCurrentGoldPrice() {
     const today = new Date().toDateString();
     const apiCallCount = getDailyAPICallCount(today);
 
-    if (apiCallCount >= API_CONFIG.maxDailyCalls) {
+    if (apiCallCount >= GOLD_API_CONFIG.maxDailyCalls) {
       console.log(
-        `Daily API limit reached (${apiCallCount}/${API_CONFIG.maxDailyCalls}) - using fallback price`
+        `Daily API limit reached (${apiCallCount}/${GOLD_API_CONFIG.maxDailyCalls}) - using fallback price`
       );
       const fallbackPricePerOunce = 3314.92;
       resolve(fallbackPricePerOunce);
@@ -104,152 +97,197 @@ async function fetchCurrentGoldPrice() {
     // Increment API call count
     incrementDailyAPICallCount(today);
 
-    // Try multiple API sources for reliability
-    let currentSourceIndex = 0;
+    console.log("Fetching gold price from MetalpriceAPI...");
 
-    function tryNextSource() {
-      if (currentSourceIndex >= GOLD_API_SOURCES.length) {
-        // If all APIs fail, use a fallback price based on current market
-        console.log("All APIs failed, using fallback gold price");
-        const fallbackPricePerOunce = 3314.92; // Current market price as fallback (from MetalpriceAPI)
-        resolve(fallbackPricePerOunce);
-        return;
-      }
+    const url = new URL(GOLD_API_CONFIG.url);
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: "GET",
+      headers: GOLD_API_CONFIG.headers,
+      timeout: 10000,
+    };
 
-      const source = GOLD_API_SOURCES[currentSourceIndex];
-      console.log(`Trying ${source.name} API...`);
+    const req = https.request(options, (res) => {
+      let data = "";
 
-      // Use https module for external API calls
-      const https = require("https");
-      const url = new URL(source.url);
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
 
-      const options = {
-        hostname: url.hostname,
-        path: url.pathname + url.search,
-        method: "GET",
-        headers: source.headers,
-        timeout: 10000,
-      };
-
-      const req = https.request(options, (res) => {
-        let data = "";
-
-        res.on("data", (chunk) => {
-          data += chunk;
-        });
-
-        res.on("end", () => {
-          try {
-            // Check if response is HTML (API blocked us)
-            if (data.includes("<!doctype html>") || data.includes("<html")) {
-              console.log(
-                `${source.name} returned HTML, trying next source...`
-              );
-              currentSourceIndex++;
-              tryNextSource();
-              return;
-            }
-
-            let goldPricePerOunce = null;
-
-            // Parse different API response formats
-            if (source.name === "MetalpriceAPI") {
-              const goldData = JSON.parse(data);
-              if (
-                goldData &&
-                goldData.success &&
-                goldData.rates &&
-                goldData.rates.USD
-              ) {
-                goldPricePerOunce = goldData.rates.USD;
-              }
-            } else if (source.name === "GoldAPI") {
-              const goldData = JSON.parse(data);
-              if (goldData && goldData.price_usd) {
-                goldPricePerOunce = goldData.price_usd;
-              }
-            } else if (source.name === "MetalsAPI") {
-              const goldData = JSON.parse(data);
-              if (goldData && goldData.length > 0 && goldData[0].price) {
-                goldPricePerOunce = goldData[0].price;
-              }
-            }
-
-            if (goldPricePerOunce && goldPricePerOunce > 0) {
-              console.log(
-                `Successfully fetched gold price from ${
-                  source.name
-                }: $${goldPricePerOunce.toFixed(2)} per ounce`
-              );
-              resolve(goldPricePerOunce);
-            } else {
-              console.log(
-                `${source.name} returned invalid data format, trying next source...`
-              );
-              currentSourceIndex++;
-              tryNextSource();
-            }
-          } catch (error) {
-            console.log(
-              `${source.name} parse error: ${error.message}, trying next source...`
-            );
-            currentSourceIndex++;
-            tryNextSource();
+      res.on("end", () => {
+        try {
+          // Check if response is HTML (API blocked us)
+          if (data.includes("<!doctype html>") || data.includes("<html")) {
+            console.log("MetalpriceAPI returned HTML, using fallback price");
+            const fallbackPricePerOunce = 3314.92;
+            resolve(fallbackPricePerOunce);
+            return;
           }
-        });
+
+          const goldData = JSON.parse(data);
+          let goldPricePerOunce = null;
+
+          // Parse MetalpriceAPI response format
+          if (
+            goldData &&
+            goldData.success &&
+            goldData.rates &&
+            goldData.rates.USDXAU
+          ) {
+            // USDXAU is gold price in USD per troy ounce
+            goldPricePerOunce = goldData.rates.USDXAU;
+          }
+
+          if (goldPricePerOunce && goldPricePerOunce > 0) {
+            console.log(
+              `Successfully fetched gold price from MetalpriceAPI: $${goldPricePerOunce.toFixed(
+                2
+              )} per ounce`
+            );
+            resolve(goldPricePerOunce);
+          } else {
+            console.log(
+              "MetalpriceAPI returned invalid data format, using fallback price"
+            );
+            const fallbackPricePerOunce = 3314.92;
+            resolve(fallbackPricePerOunce);
+          }
+        } catch (error) {
+          console.log(
+            `MetalpriceAPI parse error: ${error.message}, using fallback price`
+          );
+          const fallbackPricePerOunce = 3314.92;
+          resolve(fallbackPricePerOunce);
+        }
       });
+    });
 
-      req.on("error", (error) => {
-        console.log(
-          `${source.name} request error: ${error.message}, trying next source...`
-        );
-        currentSourceIndex++;
-        tryNextSource();
-      });
+    req.on("error", (error) => {
+      console.log(
+        `MetalpriceAPI request error: ${error.message}, using fallback price`
+      );
+      const fallbackPricePerOunce = 3314.92;
+      resolve(fallbackPricePerOunce);
+    });
 
-      req.setTimeout(10000, () => {
-        req.destroy();
-        console.log(`${source.name} timeout, trying next source...`);
-        currentSourceIndex++;
-        tryNextSource();
-      });
+    req.setTimeout(10000, () => {
+      req.destroy();
+      console.log("MetalpriceAPI timeout, using fallback price");
+      const fallbackPricePerOunce = 3314.92;
+      resolve(fallbackPricePerOunce);
+    });
 
-      req.end();
-    }
-
-    // Start with first API source
-    tryNextSource();
+    req.end();
   });
 }
 
+// Function to automatically update gold price once per day
+async function autoUpdateGoldPrice() {
+  try {
+    const settings = readEncryptedData(SETTINGS_FILE);
+    const today = new Date().toDateString();
+    const lastUpdateDate = new Date(settings.lastUpdated).toDateString();
+
+    // Only update if it's a new day and auto-update is enabled
+    if (lastUpdateDate !== today && settings.autoUpdate) {
+      console.log("Auto-updating gold price for new day...");
+
+      const currentPricePerOunce = await fetchCurrentGoldPrice();
+
+      if (currentPricePerOunce && currentPricePerOunce > 0) {
+        settings.goldPricePerOunce = currentPricePerOunce;
+        settings.lastUpdated = new Date().toISOString();
+
+        if (writeEncryptedData(SETTINGS_FILE, settings)) {
+          console.log(
+            `Gold price automatically updated to $${currentPricePerOunce.toFixed(
+              2
+            )} per ounce`
+          );
+        } else {
+          console.log("Failed to save updated gold price");
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error in auto-update gold price:", error);
+  }
+}
+
 // Function to calculate gold value based on purity and dealer markup
+// Uses correct formulas: ppg(k) = (x / 31.1034768) * (k/24) and total(x,w,k) = (x / 31.1034768) * (k/24) * w
 function calculateGoldValue(
   weightInGrams,
   purityPercentage,
   goldPricePerOunce
 ) {
-  // Convert ounces to grams (1 troy ounce = 31.1035 grams)
-  const goldPricePerGram = goldPricePerOunce / 31.1035;
+  // Constants: 1 troy ounce = 31.1034768 grams (exact value)
+  const TROY_OUNCE_TO_GRAMS = 31.1034768;
+
+  // Convert spot price to pure (24K) per-gram: pg = x / 31.1034768
+  const pureGoldPricePerGram = goldPricePerOunce / TROY_OUNCE_TO_GRAMS;
+
+  // Convert purity percentage to decimal (e.g., 58.3% -> 0.583)
+  const purityDecimal = purityPercentage / 100;
+
+  // Per-gram price at that purity: ppg = pg * p
+  const pricePerGramAtPurity = pureGoldPricePerGram * purityDecimal;
+
+  // Total for the weight: total = ppg * w
+  const marketValue = pricePerGramAtPurity * weightInGrams;
 
   // Calculate pure gold content in grams
-  const pureGoldGrams = weightInGrams * (purityPercentage / 100);
-
-  // Calculate market value of pure gold content
-  const marketValue = pureGoldGrams * goldPricePerGram;
+  const pureGoldGrams = weightInGrams * purityDecimal;
 
   // Apply dealer markup (what dealers actually pay)
   const dealerValue = marketValue * getDealerMarkup(purityPercentage);
 
+  // Round all monetary values to 2 decimal places
   return {
-    weightInGrams,
-    purityPercentage,
-    pureGoldGrams,
-    goldPricePerOunce,
-    goldPricePerGram,
-    marketValue,
-    dealerValue,
-    markupPercentage: (1 - getDealerMarkup(purityPercentage)) * 100,
+    weightInGrams: Math.round(weightInGrams * 100) / 100,
+    purityPercentage: Math.round(purityPercentage * 100) / 100,
+    pureGoldGrams: Math.round(pureGoldGrams * 100) / 100,
+    goldPricePerOunce: Math.round(goldPricePerOunce * 100) / 100,
+    goldPricePerGram: Math.round(pureGoldPricePerGram * 100) / 100,
+    pricePerGramAtPurity: Math.round(pricePerGramAtPurity * 100) / 100,
+    marketValue: Math.round(marketValue * 100) / 100,
+    dealerValue: Math.round(dealerValue * 100) / 100,
+    markupPercentage:
+      Math.round((1 - getDealerMarkup(purityPercentage)) * 100 * 100) / 100,
   };
+}
+
+// Function to calculate gold prices for multiple karats at various weights
+// Returns a table with Karat/Fineness, Purity, Price per gram, Weight (g), Total (USD)
+function calculateGoldPricesForMultipleKarats(
+  weightInGrams,
+  goldPricePerOunce,
+  karats = ["9K", "10K", "12K", "14K", "16K", "18K", "21K", "22K", "24K"]
+) {
+  const TROY_OUNCE_TO_GRAMS = 31.1034768;
+  const pureGoldPricePerGram = goldPricePerOunce / TROY_OUNCE_TO_GRAMS;
+
+  const results = karats.map((karat) => {
+    const purityPercentage = GOLD_PURITY[karat];
+    const purityDecimal = purityPercentage / 100;
+
+    // Per-gram price at that purity: ppg = pg * p
+    const pricePerGramAtPurity = pureGoldPricePerGram * purityDecimal;
+
+    // Total for the weight: total = ppg * w
+    const totalValue = pricePerGramAtPurity * weightInGrams;
+
+    return {
+      karat,
+      purity: `${purityPercentage}%`,
+      pricePerGram: Math.round(pricePerGramAtPurity * 100) / 100,
+      weight: Math.round(weightInGrams * 100) / 100,
+      total: Math.round(totalValue * 100) / 100,
+    };
+  });
+
+  return results;
 }
 
 // Function to get dealer markup based on purity
@@ -320,7 +358,7 @@ function initializeDataFiles() {
   const defaultSettings = {
     goldPricePerOunce: 3355.3, // Current market price per ounce
     lastUpdated: new Date().toISOString(),
-    autoUpdate: true,
+    autoUpdate: true, // Always enabled for automatic daily updates
     dealerMarkup: 0.75, // Default 14K dealer markup
     currency: "USD",
   };
@@ -364,7 +402,7 @@ function readEncryptedData(fileName) {
         data || {
           goldPricePerOunce: 3355.3,
           lastUpdated: new Date().toISOString(),
-          autoUpdate: true,
+          autoUpdate: true, // Always enabled for automatic daily updates
           dealerMarkup: 0.75,
           currency: "USD",
         }
@@ -381,8 +419,7 @@ function readEncryptedData(fileName) {
       return {
         goldPricePerOunce: 3355.3,
         lastUpdated: new Date().toISOString(),
-        autoUpdate: true,
-        dealerMarkup: 0.75,
+        autoUpdate: true, // Always enabled for automatic daily updates
         currency: "USD",
       };
     } else {
@@ -418,7 +455,7 @@ app.get("/", (req, res) => {
       item.purity,
       settings.goldPricePerOunce
     );
-    return sum + goldValue.dealerValue;
+    return sum + goldValue.marketValue;
   }, 0);
 
   const totalSales = sales.reduce((sum, sale) => sum + sale.price, 0);
@@ -591,13 +628,12 @@ app.get("/api/gold-price", async (req, res) => {
     res.json({
       success: true,
       pricePerOunce: currentPricePerOunce,
-      pricePerGram: currentPricePerOunce / 31.1035,
+      pricePerGram: currentPricePerOunce / 31.1034768,
       timestamp: new Date().toISOString(),
       apiStatus: {
-        enabled: API_CONFIG.enabled,
+        enabled: GOLD_API_CONFIG.enabled,
         dailyCalls: apiCallCount,
-        maxDailyCalls: API_CONFIG.maxDailyCalls,
-        testMode: API_CONFIG.testMode,
+        maxDailyCalls: GOLD_API_CONFIG.maxDailyCalls,
       },
     });
   } catch (error) {
@@ -622,7 +658,7 @@ app.post("/api/update-gold-price", async (req, res) => {
       res.json({
         success: true,
         newPricePerOunce: currentPricePerOunce,
-        newPricePerGram: currentPricePerOunce / 31.1035,
+        newPricePerGram: currentPricePerOunce / 31.1034768,
         message: "Gold price updated successfully",
       });
     } else {
@@ -663,6 +699,60 @@ app.post("/api/calculate-gold-value", (req, res) => {
       success: true,
       calculation: goldValue,
       karat: getKaratFromPurity(parseFloat(purity)),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// API endpoint to calculate gold prices for multiple karats at a given weight
+app.post("/api/calculate-gold-prices-multiple-karats", (req, res) => {
+  try {
+    const { weight, karats } = req.body;
+    const settings = readEncryptedData(SETTINGS_FILE);
+
+    if (!weight) {
+      return res.status(400).json({
+        success: false,
+        error: "Weight is required",
+      });
+    }
+
+    // Use provided karats or default to all supported karats
+    const requestedKarats = karats || [
+      "9K",
+      "10K",
+      "12K",
+      "14K",
+      "16K",
+      "18K",
+      "21K",
+      "22K",
+      "24K",
+    ];
+
+    // Filter to only include supported karats
+    const validKarats = requestedKarats.filter((karat) => GOLD_PURITY[karat]);
+
+    const goldPrices = calculateGoldPricesForMultipleKarats(
+      parseFloat(weight),
+      settings.goldPricePerOunce,
+      validKarats
+    );
+
+    res.json({
+      success: true,
+      weight: parseFloat(weight),
+      goldPricePerOunce: settings.goldPricePerOunce,
+      calculations: goldPrices,
+      formula: "total(x,w,k) = (x / 31.1034768) * (k/24) * w",
+      constants: {
+        troyOunceToGrams: 31.1034768,
+        supportedKarats: Object.keys(GOLD_PURITY),
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -763,6 +853,11 @@ app.get("/api/export", (req, res) => {
 // Initialize data files and start server
 initializeDataFiles();
 
+// Set up automatic daily gold price updates
+// TEMPORARILY DISABLED - Uncomment these lines to re-enable automatic updates
+// setInterval(autoUpdateGoldPrice, 24 * 60 * 60 * 1000); // Check every 24 hours
+// setTimeout(autoUpdateGoldPrice, 5000); // Wait 5 seconds after startup
+
 app.listen(PORT, () => {
   console.log(
     `🔐 Encrypted Jewelry Inventory Tracker running on http://localhost:${PORT}`
@@ -771,6 +866,9 @@ app.listen(PORT, () => {
   console.log(
     "🔒 Real data is isolated from GitHub - only example data is shared"
   );
-  console.log("💰 Gold price API integration enabled for real-time pricing");
+  console.log(
+    "💰 MetalpriceAPI integration TEMPORARILY DISABLED (set enabled: true to re-enable)"
+  );
+  console.log("🔄 Automatic updates disabled - API calls will not be made");
   console.log("Press Ctrl+C to stop the server");
 });

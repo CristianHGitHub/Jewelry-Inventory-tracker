@@ -25,13 +25,19 @@
               >Inventory Number</label
             >
             <input
-              type="text"
+              type="number"
               id="name"
               name="name"
               required
+              min="1"
+              step="1"
               data-translate-placeholder="inventory-number-placeholder"
-              placeholder="INV-001, INV-002, etc."
+              placeholder="1, 2, 3, etc."
+              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
             />
+            <small style="color: #666; font-size: 12px"
+              >Enter only numbers (e.g., 1, 2, 3)</small
+            >
           </div>
 
           <div class="form-group">
@@ -249,7 +255,7 @@
           ) || 3355.3;
 
         // Calculate values
-        const goldPricePerGram = currentGoldPrice / 31.1035; // Convert from troy ounce to gram
+        const goldPricePerGram = currentGoldPrice / 31.1034768; // Convert from troy ounce to gram
         const pureGoldGrams = weight * (purity / 100);
 
         // Market value calculation - adjust for realistic pricing

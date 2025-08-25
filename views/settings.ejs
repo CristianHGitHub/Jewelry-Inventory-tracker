@@ -18,143 +18,125 @@
         <a href="/" data-translate="nav-dashboard">🏠 Dashboard</a>
       </div>
 
-
-
-          <div class="summary-card" style="margin: 30px 0; text-align: left">
-            <h3 data-translate="live-gold-price">Live Gold Price</h3>
-            <div style="font-size: 1em; line-height: 1.8; margin-top: 15px">
-              <strong data-translate="current">Current:</strong> $<%= (settings
-              && settings.goldPricePerOunce ? settings.goldPricePerOunce :
-              3314.92).toFixed(2) %>
-              <span data-translate="per-ounce">per ounce</span><br />
-              <strong data-translate="per-gram">Per Gram:</strong> $<%=
-              ((settings && settings.goldPricePerOunce ?
-              settings.goldPricePerOunce : 3314.92) / 31.1035).toFixed(2) %><br />
-              <strong data-translate="updated">Updated:</strong> <%= settings &&
-              settings.lastUpdated ? new
-              Date(settings.lastUpdated).toLocaleString() : new
-              Date().toLocaleString() %>
+      <!-- Settings Layout Container -->
+      <div
+        style="
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 30px;
+          margin-top: 30px;
+        "
+      >
+        <!-- Left Column: Live Gold Price -->
+        <div
+          class="summary-card"
+          style="margin: 0; text-align: center; height: fit-content"
+        >
+          <h3 data-translate="live-gold-price">💰 Live Gold Price</h3>
+          <div style="font-size: 1.1em; line-height: 1.6; margin-top: 15px">
+            <div style="margin-bottom: 15px">
+              <div
+                style="
+                  font-size: 1.8em;
+                  font-weight: bold;
+                  color: #2c3e50;
+                  margin-bottom: 3px;
+                "
+              >
+                $<%= (settings && settings.goldPricePerOunce ?
+                settings.goldPricePerOunce : 3314.92).toFixed(2) %>
+              </div>
+              <div style="color: #7f8c8d; font-size: 0.9em">
+                <span data-translate="per-ounce">per troy ounce</span>
+              </div>
             </div>
 
             <div
-              id="price-status"
-              style="margin-top: 15px; display: none"
-            ></div>
-          </div>
-
-          <div class="summary-card" style="margin: 30px 0; text-align: left">
-            <h3 data-translate="gold-purity-standards">
-              Gold Purity Standards
-            </h3>
-            <div style="font-size: 0.9em; line-height: 1.6; margin-top: 15px">
-              <table
-                style="width: 100%; border-collapse: collapse; margin-top: 15px"
+              style="
+                margin-bottom: 15px;
+                padding: 12px;
+                background: #f8f9fa;
+                border-radius: 8px;
+              "
+            >
+              <div
+                style="font-weight: bold; color: #34495e; margin-bottom: 5px"
               >
-                <thead>
-                  <tr
-                    style="
-                      background-color: #f8f9fa;
-                      border-bottom: 2px solid #dee2e6;
-                    "
-                  >
-                    <th
-                      style="
-                        padding: 12px;
-                        text-align: left;
-                        border: 1px solid #dee2e6;
-                      "
-                    >
-                      Karat
-                    </th>
-                    <th
-                      style="
-                        padding: 12px;
-                        text-align: left;
-                        border: 1px solid #dee2e6;
-                      "
-                    >
-                      Purity %
-                    </th>
-                    <th
-                      style="
-                        padding: 12px;
-                        text-align: left;
-                        border: 1px solid #dee2e6;
-                      "
-                    >
-                      Dealer Pays
-                    </th>
-                    <th
-                      style="
-                        padding: 12px;
-                        text-align: left;
-                        border: 1px solid #dee2e6;
-                      "
-                    >
-                      1g Value
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% Object.keys(goldPurity).forEach(function(karat) { %>
-                  <tr style="border-bottom: 1px solid #dee2e6">
-                    <td
-                      style="
-                        padding: 12px;
-                        border: 1px solid #dee2e6;
-                        font-weight: bold;
-                      "
-                    >
-                      <%= karat %>
-                    </td>
-                    <td style="padding: 12px; border: 1px solid #dee2e6">
-                      <%= goldPurity[karat] %>%
-                    </td>
-                    <td style="padding: 12px; border: 1px solid #dee2e6">
-                      <%= (dealerMarkup[karat] * 100).toFixed(0) %>%
-                    </td>
-                    <td style="padding: 12px; border: 1px solid #dee2e6">
-                      $<%= (((settings && settings.goldPricePerOunce ?
-                      settings.goldPricePerOunce : 3314.92) / 31.1035) *
-                      (goldPurity[karat] / 100) *
-                      dealerMarkup[karat]).toFixed(2) %>
-                    </td>
-                  </tr>
-                  <% }); %>
-                </tbody>
-              </table>
+                <span data-translate="per-gram">Per Gram (24K)</span>
+              </div>
+              <div style="font-size: 1.2em; color: #27ae60">
+                $<%= ((settings && settings.goldPricePerOunce ?
+                settings.goldPricePerOunce : 3314.92) / 31.1034768).toFixed(2)
+                %>
+              </div>
+            </div>
+
+            <div style="padding: 12px; background: #ecf0f1; border-radius: 8px">
+              <div
+                style="font-weight: bold; color: #34495e; margin-bottom: 3px"
+              >
+                <span data-translate="updated">Last Updated</span>
+              </div>
+              <div style="color: #7f8c8d">
+                <%= settings && settings.lastUpdated ? new
+                Date(settings.lastUpdated).toLocaleString() : new
+                Date().toLocaleString() %>
+              </div>
             </div>
           </div>
 
-
-        </form>
-      </div>
-
-      <!-- Data Management Section -->
-      <div class="form-container" style="margin-top: 30px">
-        <h3 data-translate="data-management">Data Management</h3>
-
-        <div
-          class="action-buttons"
-          style="justify-content: flex-start; gap: 15px"
-        >
-          <button
-            onclick="createBackup()"
-            class="btn secondary"
-            data-translate="create-backup"
-          >
-            Create Backup
-          </button>
-          <button
-            onclick="showWipeDataDialog()"
-            class="btn danger"
-            data-translate="wipe-all-data"
-          >
-            Wipe All Data
-          </button>
+          <div id="price-status" style="margin-top: 15px; display: none"></div>
         </div>
 
-        <div id="backup-status" style="margin-top: 20px; display: none"></div>
+        <!-- Right Column: Data Management -->
+        <div
+          class="summary-card"
+          style="margin: 0; text-align: center; height: fit-content"
+        >
+          <h3 data-translate="data-management">🔧 Data Management</h3>
+
+          <div style="margin-top: 25px">
+            <button
+              onclick="createBackup()"
+              class="btn secondary"
+              style="
+                width: 100%;
+                margin-bottom: 15px;
+                padding: 15px;
+                font-size: 1.1em;
+              "
+              data-translate="create-backup"
+            >
+              💾 Create Backup
+            </button>
+
+            <button
+              onclick="showWipeDataDialog()"
+              class="btn danger"
+              style="width: 100%; padding: 15px; font-size: 1.1em"
+              data-translate="wipe-all-data"
+            >
+              🗑️ Wipe All Data
+            </button>
+          </div>
+
+          <div id="backup-status" style="margin-top: 20px; display: none"></div>
+
+          <div
+            style="
+              margin-top: 25px;
+              padding: 20px;
+              background: #fff3cd;
+              border: 1px solid #ffeaa7;
+              border-radius: 8px;
+            "
+          >
+            <div style="color: #856404; font-size: 0.9em; line-height: 1.5">
+              <strong>💡 Tip:</strong> Regular backups ensure your data is safe.
+              Backups are stored in the <code>data/backups/</code>folder.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -229,16 +211,21 @@
     </div>
 
     <!-- Credit Line -->
-    <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #eee;">
-      <small style="color: #888; font-size: 12px;">
+    <div
+      style="
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        border-top: 1px solid #eee;
+      "
+    >
+      <small style="color: #888; font-size: 12px">
         Website system created by Cristian Hernandez
       </small>
     </div>
 
     <script src="/js/language.js"></script>
     <script>
-
-
       function createBackup() {
         const statusDiv = document.getElementById("backup-status");
         statusDiv.innerHTML =
@@ -260,8 +247,6 @@
             statusDiv.innerHTML = `<div class="message error">❌ Network error: ${error.message}</div>`;
           });
       }
-
-
 
       function showWipeDataDialog() {
         document.getElementById("wipe-dialog").style.display = "block";
